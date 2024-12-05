@@ -12,7 +12,7 @@ endif()
 project ("3D-Editor")
 
 # Add source to this project's executable.
-add_executable (3D-Editor "src/3D-Editor.cpp")
+add_executable (3D-Editor "src/3D-Editor.cpp" "src/utils/Mat4x4.cpp" "src/utils/Vec3d.cpp" "src/feature/Scene.cpp" "src/feature/Camera.cpp"  "src/feature/Object.cpp")
 
 target_link_libraries(3D-Editor 
 	${CMAKE_SOURCE_DIR}/lib/sfml-graphics.lib
