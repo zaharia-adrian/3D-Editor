@@ -5,7 +5,21 @@
 
 
 class Camera {
-	
+	Vec3d pos, target, up;
+	Mat4x4 mat;
+	float thetaX, thetaY; /// rotation angles
+	float speed;
+public:
+
+	Camera();
+	Mat4x4 getViewMat();
+	void update();
+	void moveLeft();
+	void moveRight();
+	void moveUp();
+	void moveDown();
+	void moveForward();
+	void moveBackward();
 };
 
 #endif

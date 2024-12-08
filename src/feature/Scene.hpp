@@ -5,12 +5,19 @@
 #include "../feature/Camera.hpp"
 
 
+
 class Scene {
 	std::vector<Object> objects;
+	Mat4x4 projection, view;
 	Camera camera;
 
 public:
-	Scene(){};
+	Scene(float, float);
+	void updateView();
+	void draw(sf::RenderWindow&);
+	void handleMoveCamera(sf::Event);
+	Scene& loadFromFile(char*);
+
 };
 
 #endif

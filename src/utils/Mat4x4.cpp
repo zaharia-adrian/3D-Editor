@@ -1,5 +1,5 @@
 #include "Mat4x4.hpp"
-#include <iostream>
+
 
 Mat4x4::Mat4x4() {
     for (int i = 0; i < 4;i++)
@@ -7,10 +7,12 @@ Mat4x4::Mat4x4() {
             m[i][j] = 0.0f;
 }
 
-Mat4x4::Mat4x4(float _m[4][4]) {
+
+Mat4x4::Mat4x4(std::initializer_list<float>  _m) {
+    auto* it = _m.begin();
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            m[i][j] = _m[i][j];
+            m[i][j] = *it++;
 }
 
 void Mat4x4::print() const { /// for debugging :))  
@@ -30,41 +32,42 @@ Mat4x4 Mat4x4::identity() {
     return m;
 }
 
-Mat4x4 Mat4x4::projection(float width, float height, float viewAngle = acos(-1)/2.0f, float znear = 0.1f, float zfar = 1000.0f) {
+Mat4x4 Mat4x4::projection(float width, float height, float viewAngle, float znear, float zfar) {
     Mat4x4 m;
     float aspectRatio = height / width;
     float fov = 1.0f / tanf(viewAngle / 2.0f); /// field of view
-    float q = zfar / (zfar - znear);
-    m.m[0][0] = aspectRatio*fov;
+    float q1 =  (-zfar - znear)/ (znear - zfar);
+    float q2 =  2 * znear * zfar / (znear - zfar);
+    m.m[0][0] = fov * aspectRatio;
     m.m[1][1] = fov;
-    m.m[2][2] = q;
-    m.m[2][3] = 1;
-    m.m[3][2] = -znear * q;
+    m.m[2][2] = q1;
+    m.m[2][3] = q2;
+    m.m[3][2] = 1;
     return m;
 }
 Mat4x4 Mat4x4::translation(float x, float y, float z) {
-    Mat4x4 m;
-    m.m[3][0] = x;
-    m.m[3][1] = y;
-    m.m[3][2] = z;
+    Mat4x4 m = Mat4x4::identity();
+    m.m[0][3] = x;
+    m.m[1][3] = y;
+    m.m[2][3] = z;
     return m;
 };
+
 
 Mat4x4 Mat4x4::rotationX(float theta) {
 	Mat4x4 m = identity();
     m.m[1][1] = cosf(theta);
-    m.m[1][2] = sinf(theta);
-    m.m[2][1] = -sinf(theta);
+    m.m[2][1] = sinf(theta);
+    m.m[1][2] = -sinf(theta);
     m.m[2][2] = cosf(theta);
-
     return m;
 }
 
 Mat4x4 Mat4x4::rotationY(float theta) {
     Mat4x4 m = identity();
     m.m[0][0] = cosf(theta);
-    m.m[0][2] = sinf(theta);
-    m.m[2][0] = -sinf(theta);
+    m.m[2][0] = sinf(theta);
+    m.m[0][2] = -sinf(theta);
     m.m[2][2] = cosf(theta);
     return m;
 }
@@ -72,8 +75,8 @@ Mat4x4 Mat4x4::rotationY(float theta) {
 Mat4x4 Mat4x4::rotationZ(float theta) {
     Mat4x4 m = identity();
     m.m[0][0] = cosf(theta);
-    m.m[0][1] = sinf(theta);
-    m.m[1][0] = -sinf(theta);
+    m.m[1][0] = sinf(theta);
+    m.m[0][1] = -sinf(theta);
     m.m[1][1] = cosf(theta);
     return m;
 }
@@ -100,6 +103,7 @@ Mat4x4 Mat4x4::operator * (const Mat4x4& other) {
     for (int i = 0;i < 4; i++)
         for (int j = 0; j < 4; j++)
             for (int k = 0; k < 4; k++)
-                m.m[i][j] += this->m[i][k] * other.m[k][j];
+                m.m[i][j] += (this->m[i][k] * other.m[k][j]);
     return m;
 }
+

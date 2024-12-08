@@ -1,13 +1,19 @@
 #ifndef OBJECT_HPP
 #define OBJECT_HPP
 #include <iostream>
+#include <stdio.h>
 #include <vector>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics.hpp>
+
 
 #include "../../src/utils/Vec3d.hpp"
 #include "../../src/utils/Mat4x4.hpp"
+#include "../../src/feature/Camera.hpp"
 
 class Object {
+public:
+	
 	struct face {
 		int idx[3];
 		sf::Color c;
@@ -17,16 +23,20 @@ class Object {
 		}
 	};
 	std::vector<face> faces;
-	std::vector<Vec3d> vertices;
-	Mat4x4 world;
+	std::vector<Vec3d> vertices, viewVertices;
+	Vec3d rot; /// rotation angles
+	Vec3d pos; /// position in the scene 
 
-	bool idxInBounds(int idx);
-public:
+	bool idxInBounds(int idx) const;
 	
 	Object();
-	void addFace(int, int, int, sf::Color);
+	void addFace(int, int, int, sf::Color = sf::Color::White);
 	void addVertex(const Vec3d&);
-	void addVertex(float, float, float, float);
+	void addVertex(float, float, float, float = 1);
+
+	void update();
+	
+	
 
 };
 
