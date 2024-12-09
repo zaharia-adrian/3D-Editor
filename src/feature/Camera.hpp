@@ -12,7 +12,7 @@ class Camera {
 public:
 
 	Camera();
-	Mat4x4 getViewMat();
+	Mat4x4 getViewMat() const;
 	void update();
 	void moveLeft();
 	void moveRight();

@@ -5,6 +5,7 @@
 #include "../src/utils/Mat4x4.hpp"
 #include "../src/utils/Vec3d.hpp"
 #include "../src/feature/Scene.hpp"
+#include <filesystem>
 
 
 
@@ -16,17 +17,18 @@ const float WIDTH = 1020; ///window height
 int main()
 {
     float theta = 0;
+    std::cout << std::filesystem::current_path();
 
     sf::RenderWindow window(sf::VideoMode(800, 600), "3D-Editor");
  
 
     Scene S(800,600);
-    S.loadFromFile("../../../localProjects/Axis.txt");
+    S.loadFromFile("../../../localProjects/Spaceship.txt");
     
     
-    int it = 1;
+  
    
-    while (window.isOpen() && it)
+    while (window.isOpen())
     {
 
         sf::Event event;

@@ -12,11 +12,7 @@ Camera::Camera() {
 
 void Camera::update() {
 
-	float alfa; /// multiplication coefficient to set the camera position
-	if (abs(target.x) > 0.01f) alfa = -pos.x / target.x;
-	else if (abs(target.y) > 0.01f) alfa = -pos.y / target.y;
-	else alfa = -pos.z / target.z;
-
+	
 	///updating the rotation 
 	Vec3d Yaxis(0.0f, 1.0f, 0.0f);
 
@@ -29,7 +25,7 @@ void Camera::update() {
 	target = View.normalize();
 	up = target.crossProd(U).normalize();
 
-	pos = target * (-alfa);
+	pos = target * (-pos.getLength());
 
 	Mat4x4 rotation = Mat4x4({
 		U.x, U.y, U.z, 0.0f,
@@ -40,7 +36,7 @@ void Camera::update() {
 	Mat4x4 translation = Mat4x4::translation(-pos.x, -pos.y, -pos.z);
 	mat = rotation * translation;
 }
-Mat4x4 Camera::getViewMat() {
+Mat4x4 Camera::getViewMat() const {
 	return mat;
 }
 
@@ -63,7 +59,7 @@ void Camera::moveDown() {
 	update();
 }
 void Camera::moveForward() {
-	if(pos.length()>2.0f)
+	//if(pos.length()>2.0f)
 	pos += (target * speed);
 	update();
 }

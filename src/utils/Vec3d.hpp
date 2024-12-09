@@ -16,7 +16,7 @@ public:
 
 	void print(std::string = "") const; /// for debugging
 
-	float length() const;
+	float getLength() const;
 	float dotProd(const Vec3d &) const;
 	Vec3d crossProd(const Vec3d &) const;
 	Vec3d& normalize();
