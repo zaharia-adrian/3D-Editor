@@ -30,7 +30,7 @@ void Object::update() {
 	Mat4x4 world = Mat4x4::identity();
 	world *= Mat4x4::translation(pos.x, pos.y, pos.z);
 	world *= Mat4x4::rotationX(rot.x);
-	world *= Mat4x4::rotationX(rot.y);
+	world *= Mat4x4::rotationY(rot.y);
 	world *= Mat4x4::rotationZ(rot.z);
 
 	for (int ind = 0; ind < vertices.size();ind++)

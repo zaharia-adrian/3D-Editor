@@ -80,6 +80,7 @@ int main()
         if (!btn1.isSwitchedOn()) {
             S.draw(window);
         }
+     
 
         btn1.drawTo(window);
         //m1.draw(window);

@@ -81,10 +81,30 @@ void Scene::draw(sf::RenderWindow& window) {
 			o.viewVertices[ind]  = o.vertices[ind] * view;
 		}
 		for (Object::face &f : o.faces) {
-			
+
+			std::vector<int> pointx(3);
+			std::vector<int> pointy(3);
+
+			for (int index = 0; index < 3; index++) {
+				pointx[index] = (o.viewVertices[f.idx[index]].x + 1) * width * 0.5f;
+				pointy[index] = (o.viewVertices[f.idx[index]].y + 1) * height * 0.5f;
+			}
+
+			sf::ConvexShape triangle;
+			triangle.setPointCount(3);
+			triangle.setPoint(0, sf::Vector2f(pointx[0], pointy[0]));
+			triangle.setPoint(1, sf::Vector2f(pointx[1], pointy[1]));
+			triangle.setPoint(2, sf::Vector2f(pointx[2], pointy[2]));
+			triangle.setOutlineColor(sf::Color::Red);
+			triangle.setOutlineThickness(1);
+			triangle.setFillColor(sf::Color::Black);
+			window.draw(triangle);
+
+			/*
 			drawLine(o.viewVertices[f.idx[0]], o.viewVertices[f.idx[1]]);
 			drawLine(o.viewVertices[f.idx[0]], o.viewVertices[f.idx[2]]);
 			drawLine(o.viewVertices[f.idx[1]], o.viewVertices[f.idx[2]]);
+			*/
 		}
 	}
 }
