@@ -32,7 +32,7 @@ int main()
 
     
     sf::Color Gray(128, 128, 128);
-    Button btn1("Switch", { 200, 50 }, 20, Gray, sf::Color::Black);
+    Button btn1("Switch visibility", { 200, 50 }, 20, Gray, sf::Color::Black);
     btn1.setFont(arial);
     btn1.setPosition({ 100, 300 });
 

@@ -14,13 +14,22 @@ project ("3D-Editor")
 # Add source to this project's executable.
 add_executable (3D-Editor "src/3D-Editor.cpp" "src/utils/Mat4x4.cpp" "src/utils/Button.cpp" "src/utils/Vec3d.cpp" "src/feature/Scene.cpp" "src/feature/Camera.cpp" "src/feature/Object.cpp" "src/utils/Quaternion.cpp")
 
-target_link_libraries(3D-Editor 
-	${CMAKE_SOURCE_DIR}/lib/sfml-graphics.lib
-	${CMAKE_SOURCE_DIR}/lib/sfml-audio.lib
-	${CMAKE_SOURCE_DIR}/lib/sfml-network.lib
-	${CMAKE_SOURCE_DIR}/lib/sfml-system.lib
-	${CMAKE_SOURCE_DIR}/lib/sfml-window.lib
-)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_link_libraries(3D-Editor 
+		${CMAKE_SOURCE_DIR}/lib/sfml-graphics-d.lib
+		${CMAKE_SOURCE_DIR}/lib/sfml-audio-d.lib
+		${CMAKE_SOURCE_DIR}/lib/sfml-network-d.lib
+		${CMAKE_SOURCE_DIR}/lib/sfml-system-d.lib
+		${CMAKE_SOURCE_DIR}/lib/sfml-window-d.lib)
+else()
+	target_link_libraries(3D-Editor 
+		${CMAKE_SOURCE_DIR}/lib/sfml-graphics.lib
+		${CMAKE_SOURCE_DIR}/lib/sfml-audio.lib
+		${CMAKE_SOURCE_DIR}/lib/sfml-network.lib
+		${CMAKE_SOURCE_DIR}/lib/sfml-system.lib
+		${CMAKE_SOURCE_DIR}/lib/sfml-window.lib)
+endif()
+
 
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
