@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "../src/utils/Mat4x4.hpp"
 #include "../src/utils/Vec3d.hpp"
+#include "../src/utils/Button.hpp"
 #include "../src/feature/Scene.hpp"
 #include <filesystem>
 
@@ -17,17 +18,24 @@ const float WIDTH = 1020; ///window height
 int main()
 {
     float theta = 0;
-    std::cout << std::filesystem::current_path();
+    ///std::cout << std::filesystem::current_path();
 
-    sf::RenderWindow window(sf::VideoMode(800, 600), "3D-Editor");
+    sf::RenderWindow window(sf::VideoMode(HEIGHT, WIDTH), "3D-Editor");
  
 
+
     Scene S(800,600);
-    S.loadFromFile("../../../localProjects/Spaceship.txt");
+    S.loadFromFile("../../../localProjects/Cube.txt");
     
+    sf::Font arial;
+    arial.loadFromFile("../../../assets/arial.ttf");
+
     
-  
-   
+    sf::Color Gray(128, 128, 128);
+    Button btn1("Switch", { 200, 50 }, 20, Gray, sf::Color::Black);
+    btn1.setFont(arial);
+    btn1.setPosition({ 100, 300 });
+
     while (window.isOpen())
     {
 
@@ -38,6 +46,28 @@ int main()
                 event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape
                 )
                 window.close();
+            if (event.type == sf::Event::MouseMoved) {
+                if (btn1.isMouseOver(window)) {
+                    if (!btn1.isPressed()) {
+                        btn1.setBackColor(sf::Color::Blue);
+                    }
+                } else {
+                    btn1.setBackColor(Gray);
+                }
+            }
+            if (event.type == sf::Event::MouseButtonPressed) {
+                if (btn1.isMouseOver(window)) {
+                    btn1.setBackColor(sf::Color::Green);
+                    btn1.press();
+                }
+            }
+            if (event.type == sf::Event::MouseButtonReleased) {
+                btn1.release();
+                if (btn1.isMouseOver(window)) {
+                    btn1.switchOnOff();
+                    btn1.setBackColor(sf::Color::Blue);
+                }
+            }
             /*if (event.type == sf::Event::MouseMoved)
                 std::cout << "moves...\n";*/
             //m1.handleMoveCamera(event);
@@ -47,7 +77,11 @@ int main()
         
         window.clear(sf::Color::Black);
 
-        S.draw(window);
+        if (!btn1.isSwitchedOn()) {
+            S.draw(window);
+        }
+
+        btn1.drawTo(window);
         //m1.draw(window);
         window.display();
         /*
