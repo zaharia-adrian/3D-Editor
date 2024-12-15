@@ -1,9 +1,9 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
+#include "../feature/Triangle.hpp"
 #include "../feature/Object.hpp"
 #include "../feature/Camera.hpp"
-
 
 
 class Scene {

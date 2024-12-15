@@ -4,16 +4,12 @@
 #include <algorithm>
 #include "../src/utils/Mat4x4.hpp"
 #include "../src/utils/Vec3d.hpp"
-#include "../src/utils/Button.hpp"
+#include "../src/feature/Button.hpp"
 #include "../src/feature/Scene.hpp"
 #include <filesystem>
 
-
-
 const float HEIGHT = 1980; /// window width
 const float WIDTH = 1020; ///window height
-
-
 
 int main()
 {
