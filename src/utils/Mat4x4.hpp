@@ -16,7 +16,8 @@ public:
 
 	void print() const; /// for debugging
 	
-	static Mat4x4 projection(float, float, float = acos(-1)*0.33f, float =0.1f, float =100.0f);
+	static Mat4x4 perspectiveProjection(float, float, float = acos(-1)*0.5f, float =1.0f, float =100.0f);
+	static Mat4x4 screenTransform(float, float);
 	static Mat4x4 translation(float, float, float);
 	static Mat4x4 rotationX(float);
 	static Mat4x4 rotationY(float);

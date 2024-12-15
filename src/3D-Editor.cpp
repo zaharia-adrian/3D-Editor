@@ -8,19 +8,16 @@
 #include "../src/feature/Scene.hpp"
 #include <filesystem>
 
-const float HEIGHT = 1980; /// window width
-const float WIDTH = 1020; ///window height
+const float HEIGHT = 1080; ///window width
+const float WIDTH = 1920; ///window height
 
 int main()
 {
     float theta = 0;
-    ///std::cout << std::filesystem::current_path();
 
-    sf::RenderWindow window(sf::VideoMode(HEIGHT, WIDTH), "3D-Editor");
- 
-
-
-    Scene S(800,600);
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "3D-Editor");
+    
+    Scene S(WIDTH, HEIGHT);
     S.loadFromFile("../../../localProjects/Cube.txt");
     
     sf::Font arial;
@@ -74,7 +71,7 @@ int main()
         window.clear(sf::Color::Black);
 
         if (!btn1.isSwitchedOn()) {
-            S.draw(window);
+            S.drawTo(window);
         }
      
 

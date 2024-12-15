@@ -47,6 +47,14 @@ Vec3d& Vec3d::operator = (const Vec3d& other) {
 	return *this;
 }
 
+Vec3d Vec3d::operator +(const Vec3d& other) {
+	return Vec3d(x + other.x, y + other.y, z + other.z, 1.0f);
+}
+
+Vec3d Vec3d::operator -(const Vec3d& other) {
+	return Vec3d(x - other.x, y - other.y, z - other.z, 1.0f);
+}
+
 Vec3d& Vec3d::operator += (const Vec3d& other) {
 	x += other.x, y += other.y, z += other.z;
 	return *this;

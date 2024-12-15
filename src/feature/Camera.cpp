@@ -12,12 +12,11 @@ Camera::Camera() {
 
 void Camera::update() {
 
-	
 	///updating the rotation 
 	Vec3d Yaxis(0.0f, 1.0f, 0.0f);
-
+											
 	Vec3d View(0.0f, 0.0f, 1.0f);
-	View.rotate(Yaxis, thetaX).normalize();
+	View.rotate(Yaxis, thetaX).normalize();		
 
 	Vec3d U = Yaxis.crossProd(View).normalize();
 	View.rotate(U, thetaY);
@@ -32,7 +31,7 @@ void Camera::update() {
 		up.x, up.y, up.z, 0.0f,
 		target.x, target.y, target.z, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
-		});
+	});
 	Mat4x4 translation = Mat4x4::translation(-pos.x, -pos.y, -pos.z);
 	mat = rotation * translation;
 }
@@ -46,6 +45,7 @@ void Camera::moveLeft() {
 }
 
 void Camera::moveRight() {
+	
 	thetaX += speed;
 	update();
 }

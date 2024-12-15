@@ -32,17 +32,24 @@ Mat4x4 Mat4x4::identity() {
     return m;
 }
 
-Mat4x4 Mat4x4::projection(float width, float height, float viewAngle, float znear, float zfar) {
+Mat4x4 Mat4x4::perspectiveProjection(float width, float height, float viewAngle, float znear, float zfar) {
     Mat4x4 m;
-    float aspectRatio = height / width;
+    float inverseAspectRatio = height / width;
     float fov = 1.0f / tanf(viewAngle / 2.0f); /// field of view
     float q1 =  (-zfar - znear)/ (znear - zfar);
     float q2 =  2 * znear * zfar / (znear - zfar);
-    m.m[0][0] = fov * aspectRatio;
+    m.m[0][0] = fov * inverseAspectRatio;
     m.m[1][1] = fov;
     m.m[2][2] = q1;
     m.m[2][3] = q2;
     m.m[3][2] = 1;
+    return m;
+}
+
+Mat4x4 Mat4x4::screenTransform(float width, float height) {
+    Mat4x4 m = Mat4x4::identity();
+    m.m[0][0] = m.m[0][3] = width * 0.5f;
+    m.m[1][1] = m.m[1][3] = height * 0.5f;
     return m;
 }
 Mat4x4 Mat4x4::translation(float x, float y, float z) {

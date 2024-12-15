@@ -23,6 +23,8 @@ public:
 	Vec3d& rotate(const Vec3d&, float theta);
 
 	Vec3d& operator = (const Vec3d &);
+	Vec3d operator + (const Vec3d&);
+	Vec3d operator - (const Vec3d&);
 	Vec3d& operator += (const Vec3d &);
 	Vec3d& operator -= (const Vec3d &);
 	Vec3d& operator *= (float);
