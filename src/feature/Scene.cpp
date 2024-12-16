@@ -11,22 +11,24 @@ Scene::Scene(float width, float height, float viewAngle, float near, float far):
 	updateView();
 };
 
+
+
 void Scene::updateView() {
 	
-
+	
 	viewVertices.clear();
 	viewTriangles.clear();
+	std::vector<std::pair<Object::triangle, int>> cTriangles;
 
-	Mat4x4 mat2 = Mat4x4::screenTransform(width, height) * Mat4x4::perspectiveProjection(width, height, viewAngle, near, far);
 
 	for (int i = 0;i < objects.size();i++) {
 
 		int count = viewVertices.size();
 
-		Mat4x4 mat1  = camera.getViewMat() * objects[i].getWorldMat();
+		Mat4x4 mat = camera.getViewMat() * objects[i].getWorldMat();
 
 		for (Vec3d& v : objects[i].vertices)
-			viewVertices.emplace_back(v * mat1);
+			viewVertices.emplace_back(v * mat);
 
 		for (Object::triangle& t : objects[i].triangles) {
 
@@ -36,15 +38,33 @@ void Scene::updateView() {
 			Vec3d normal = line1.crossProd(line2).normalize();
 			
 			if (normal.dotProd(viewVertices[t.idx[0] + count]) < 0)
-				viewTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
+				cTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
 		}
 		
 	}
-	for (Vec3d &v : viewVertices) v *= mat2;
+
+	for (Vec3d& v : viewVertices) v *= Mat4x4::perspectiveProjection(width, height, viewAngle, far, near);
+
+	for (std::pair<Object::triangle,int>& t : cTriangles) {
+		auto isInsideFrustum = [&](const Vec3d& v)->bool {
+			return (v.x <= v.w && v.x >= -v.w &&
+				v.y <= v.w && v.y >= -v.w &&
+				v.z <= v.w && v.z >= -v.w
+				);
+			};
+
+		if (isInsideFrustum(viewVertices[t.first.idx[0]]) ||
+			isInsideFrustum(viewVertices[t.first.idx[1]]) ||
+			isInsideFrustum(viewVertices[t.first.idx[2]])
+			)
+			viewTriangles.emplace_back(t);
+	}
+
+	for (Vec3d& v : viewVertices) v *= Mat4x4::screenTransform(width, height);
 
 	std::sort(viewTriangles.begin(), viewTriangles.end(), [&](std::pair<Object::triangle,int>& t1, std::pair<Object::triangle, int>& t2) {
-		float z1 = std::min({ viewVertices[t1.first.idx[0]].z, viewVertices[t1.first.idx[1]].z, viewVertices[t1.first.idx[2]].z });
-		float z2 = std::min({ viewVertices[t2.first.idx[0]].z, viewVertices[t2.first.idx[1]].z, viewVertices[t2.first.idx[2]].z });
+		float z1 = (viewVertices[t1.first.idx[0]].z + viewVertices[t1.first.idx[1]].z + viewVertices[t1.first.idx[2]].z )/3.0f;
+		float z2 = (viewVertices[t2.first.idx[0]].z + viewVertices[t2.first.idx[1]].z + viewVertices[t2.first.idx[2]].z )/3.0f;
 		return (z1 > z2);
 	});
 }

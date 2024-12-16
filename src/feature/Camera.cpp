@@ -43,22 +43,22 @@ Vec3d Camera::getPos() const {
 }
 
 void Camera::moveLeft() {
-	thetaX -= speed;
+	thetaX += speed;
 	update();
 }
 
 void Camera::moveRight() {
 	
-	thetaX += speed;
+	thetaX -= speed;
 	update();
 }
  
 void Camera::moveUp() {
-	thetaY -= speed;
+	thetaY += speed;
 	update();
 }
 void Camera::moveDown() {
-	thetaY += speed;
+	thetaY -= speed;
 	update();
 }
 void Camera::moveForward() {

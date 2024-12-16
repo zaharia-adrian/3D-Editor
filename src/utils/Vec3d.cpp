@@ -81,7 +81,7 @@ Vec3d Vec3d::operator *(float c) {
 }
 
 Vec3d& Vec3d::operator /= (float c) {
-	x /= c, y /= c, z /= c;
+	x /= c, y /= c, z /= c, w = 1;
 	return *this;
 }
 
