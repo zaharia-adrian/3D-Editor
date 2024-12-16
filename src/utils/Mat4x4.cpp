@@ -32,17 +32,17 @@ Mat4x4 Mat4x4::identity() {
     return m;
 }
 
-Mat4x4 Mat4x4::perspectiveProjection(float width, float height, float viewAngle, float znear, float zfar) {
+Mat4x4 Mat4x4::perspectiveProjection(float width, float height, float viewAngle, float near, float far) {
     Mat4x4 m;
     float inverseAspectRatio = height / width;
     float fov = 1.0f / tanf(viewAngle / 2.0f); /// field of view
-    float q1 =  (-zfar - znear)/ (znear - zfar);
-    float q2 =  2 * znear * zfar / (znear - zfar);
+    float q1 =  -(far + near)/ (far - near);
+    float q2 =  - 2 * near * far / (far - near);
     m.m[0][0] = fov * inverseAspectRatio;
     m.m[1][1] = fov;
     m.m[2][2] = q1;
     m.m[2][3] = q2;
-    m.m[3][2] = 1;
+    m.m[3][2] = -1;
     return m;
 }
 

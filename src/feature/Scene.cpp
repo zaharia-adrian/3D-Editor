@@ -17,16 +17,30 @@ void Scene::updateView() {
 	viewVertices.clear();
 	viewTriangles.clear();
 
+	Mat4x4 mat2 = Mat4x4::screenTransform(width, height) * Mat4x4::perspectiveProjection(width, height, viewAngle, near, far);
+
 	for (int i = 0;i < objects.size();i++) {
 
 		int count = viewVertices.size();
-		Mat4x4 mat = Mat4x4::screenTransform(width, height) * Mat4x4::perspectiveProjection(width, height) * camera.getViewMat() * objects[i].getWorldMat();
+
+		Mat4x4 mat1  = camera.getViewMat() * objects[i].getWorldMat();
 
 		for (Vec3d& v : objects[i].vertices)
-			viewVertices.emplace_back(v * mat);
-		for (Object::triangle& t : objects[i].triangles)
-			viewTriangles.emplace_back( Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
+			viewVertices.emplace_back(v * mat1);
+
+		for (Object::triangle& t : objects[i].triangles) {
+
+			Vec3d line1 = (viewVertices[t.idx[1] + count] - viewVertices[t.idx[0] + count]);
+			Vec3d line2 = (viewVertices[t.idx[2] + count] - viewVertices[t.idx[0] + count]);
+
+			Vec3d normal = line1.crossProd(line2).normalize();
+			
+			if (normal.dotProd(viewVertices[t.idx[0] + count]) < 0)
+				viewTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
+		}
+		
 	}
+	for (Vec3d &v : viewVertices) v *= mat2;
 
 	std::sort(viewTriangles.begin(), viewTriangles.end(), [&](std::pair<Object::triangle,int>& t1, std::pair<Object::triangle, int>& t2) {
 		float z1 = std::min({ viewVertices[t1.first.idx[0]].z, viewVertices[t1.first.idx[1]].z, viewVertices[t1.first.idx[2]].z });
@@ -44,6 +58,7 @@ void Scene::handleMoveCamera(sf::Event e) {
 		if (e.key.code == sf::Keyboard::Down) camera.moveDown();
 		if (e.key.code == sf::Keyboard::F) camera.moveForward();
 		if (e.key.code == sf::Keyboard::B) camera.moveBackward();
+		
 		updateView();
 	}
 };
@@ -95,8 +110,8 @@ void Scene::drawTo(sf::RenderWindow& window) {
 
 	float fov = 1 / tan(viewAngle / 2.0f);
 	std::vector<std::vector<Vec3d>> planes = {
-		/*{{0.0f, 0.0f, near},Vec3d(0.0f, 0.0f, 1.0f)}, /// near plane
-		{{0.0f, 0.0f, far},Vec3d(0.0f, 0.0f, -1.0f)}, /// far plane*/
+		{{0.0f, 0.0f, 0.1f},Vec3d(0.0f, 0.0f, 1.0f)}, /// near plane
+		{{0.0f, 0.0f, far},Vec3d(0.0f, 0.0f, -1.0f)}, /// far plane
 		{{-a, 0.0f, near},Vec3d(fov / a, 0.0f, 1.0f).normalize()}, /// left plane
 		{{a, 0.0f, near},Vec3d(-fov / a, 0.0f, 1.0f).normalize()}, /// right plane
 		{{0.0f, -1.0f, near},Vec3d(0.0f, fov, 1.0f).normalize()},///top plane
@@ -132,7 +147,7 @@ void Scene::drawTo(sf::RenderWindow& window) {
 		};
 
 	Mat4x4 mat = camera.getViewMat();
-	Mat4x4 view = Mat4x4::screenTransform(width, height) * Mat4x4::perspectiveProjection(width, height);
+	Mat4x4 view = Mat4x4::screenTransform(width, height) * Mat4x4::perspectiveProjection(width, height, viewAngle, near, far);
 
 	///drawing the grid
 	Vec3d v1, v2;
@@ -156,7 +171,7 @@ void Scene::drawTo(sf::RenderWindow& window) {
 	for (std::pair<Object::triangle,int> &sceneTriangle : viewTriangles) {
 		Object::triangle t = sceneTriangle.first;
 		
-		sf::ConvexShape triangle;
+ 		sf::ConvexShape triangle;
 		triangle.setPointCount(3);
 		triangle.setPoint(0, sf::Vector2f(viewVertices[t.idx[0]].x, viewVertices[t.idx[0]].y));
 		triangle.setPoint(1, sf::Vector2f(viewVertices[t.idx[1]].x, viewVertices[t.idx[1]].y));

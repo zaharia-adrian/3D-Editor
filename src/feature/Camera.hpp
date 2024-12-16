@@ -13,6 +13,7 @@ public:
 
 	Camera();
 	Mat4x4 getViewMat() const;
+	Vec3d getPos() const;
 	void update();
 	void moveLeft();
 	void moveRight();

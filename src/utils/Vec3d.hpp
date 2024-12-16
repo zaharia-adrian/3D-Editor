@@ -17,6 +17,7 @@ public:
 	void print(std::string = "") const; /// for debugging
 
 	float getLength() const;
+	bool isRight(const Vec3d &, const Vec3d &) const; //used for clockwise sorting for the triangles vertices
 	float dotProd(const Vec3d &) const;
 	Vec3d crossProd(const Vec3d &) const;
 	Vec3d& normalize();

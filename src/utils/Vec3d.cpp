@@ -17,6 +17,12 @@ float Vec3d::getLength() const{
 	return sqrtf(this->x * this->x + this->y * this->y + this->z * this->z);
 }
 
+bool Vec3d::isRight(const Vec3d& v1, const Vec3d& v2) const { 
+	///returns true if the *this is on the right side of the line determined by the v1 and v2
+	///takes into account only the x and y coordinates after they have been transformed to screen space
+	return (v2.x - v1.x) * (y - v1.y) - (v2.y - v2.y) * (x - v1.x) >= 0;
+}
+
 Vec3d& Vec3d::normalize() {
 	*this /= this->getLength();
 	return *this;
@@ -87,7 +93,7 @@ Vec3d& Vec3d::operator *=(const Mat4x4 &m) {
 	v.z = x * m.m[2][0] + y * m.m[2][1] + z * m.m[2][2] + w * m.m[2][3];
 	v.w = x * m.m[3][0] + y * m.m[3][1] + z * m.m[3][2] + w * m.m[3][3];
 
-	//if (v.w != 0) v /= v.w;
+	if (v.w != 0) v /= v.w;
 	*this = v;
 	return *this;
 }

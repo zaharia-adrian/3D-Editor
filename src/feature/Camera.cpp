@@ -38,6 +38,9 @@ void Camera::update() {
 Mat4x4 Camera::getViewMat() const {
 	return mat;
 }
+Vec3d Camera::getPos() const {
+	return pos;
+}
 
 void Camera::moveLeft() {
 	thetaX -= speed;
