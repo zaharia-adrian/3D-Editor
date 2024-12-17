@@ -15,19 +15,20 @@ const float SCENE_WIDTH = 1470;
 
 int main()
 {
+
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "3D-Editor");
     
-    Scene S(SCENE_WIDTH, HEIGHT);
-    S.loadFromFile("../../../localProjects/Cube.txt");
+    Scene *scene = Scene::getInstance();
+    scene->loadFromFile("../../../localProjects/SpaceShip.txt");
     
     sf::Font arial;
     arial.loadFromFile("../../../assets/arial.ttf");
 
     
     sf::Color Gray(128, 128, 128);
-    Button btn1("Switch visibility", { 200, 50 }, 20, Gray, sf::Color::Black);
+    Button btn1("Switch mode", { 150, 40 }, 20, Gray, sf::Color::Black);
     btn1.setFont(arial);
-    btn1.setPosition({ 100, 300 });
+    btn1.setPosition({ 1295, 25 });
 
     Menu menu(WIDTH - SCENE_WIDTH,HEIGHT, SCENE_WIDTH);
 
@@ -54,6 +55,7 @@ int main()
                 if (btn1.isMouseOver(window)) {
                     btn1.setBackColor(sf::Color::Green);
                     btn1.press();
+                    scene->editMode = !scene->editMode;
                 }
             }
             if (event.type == sf::Event::MouseButtonReleased) {
@@ -64,17 +66,14 @@ int main()
                 }
             }
            
-            S.handleMoveCamera(event);
- 
+            scene->handleMoveCamera(event);
+            menu.handleEvent(event);
         }
         
-        window.clear(sf::Color::Black);
+        window.clear(sf::Color(26,26,26));
 
-        if (!btn1.isSwitchedOn()) {
-            S.drawTo(window);
-        }
-     
-
+       
+        scene->drawTo(window);
         btn1.drawTo(window);
         menu.drawTo(window);
  

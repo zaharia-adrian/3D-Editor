@@ -1,11 +1,14 @@
 #include "Scene.hpp"
 
+Scene* Scene::instancePtr = nullptr;
+
 Scene::Scene(float width, float height, float viewAngle, float near, float far):
 	width(width),
 	height(height),
 	near(near),
 	far(far),
-	viewAngle(viewAngle)
+	viewAngle(viewAngle),
+	editMode(false)
 {
 	a = width / height;
 	updateView();
@@ -15,56 +18,59 @@ Scene::Scene(float width, float height, float viewAngle, float near, float far):
 
 void Scene::updateView() {
 	
-	
-	viewVertices.clear();
+	vertices.clear();
+	triangles.clear();
 	viewTriangles.clear();
-	std::vector<std::pair<Object::triangle, int>> cTriangles;
-
+	std::vector<std::pair<Object::triangle, int>> cViewTriangles,cTriangles;
 
 	for (int i = 0;i < objects.size();i++) {
 
-		int count = viewVertices.size();
+		int count = vertices.size();
 
 		Mat4x4 mat = camera.getViewMat() * objects[i].getWorldMat();
 
 		for (Vec3d& v : objects[i].vertices)
-			viewVertices.emplace_back(v * mat);
+			vertices.emplace_back(v * mat);
 
 		for (Object::triangle& t : objects[i].triangles) {
 
-			Vec3d line1 = (viewVertices[t.idx[1] + count] - viewVertices[t.idx[0] + count]);
-			Vec3d line2 = (viewVertices[t.idx[2] + count] - viewVertices[t.idx[0] + count]);
+			Vec3d line1 = (vertices[t.idx[1] + count] - vertices[t.idx[0] + count]);
+			Vec3d line2 = (vertices[t.idx[2] + count] - vertices[t.idx[0] + count]);
 
 			Vec3d normal = line1.crossProd(line2).normalize();
-			
-			if (normal.dotProd(viewVertices[t.idx[0] + count]) < 0)
-				cTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
+			cTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
+			if (normal.dotProd(vertices[t.idx[0] + count]) < 0)
+				cViewTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
 		}
 		
 	}
 
-	for (Vec3d& v : viewVertices) v *= Mat4x4::perspectiveProjection(width, height, viewAngle, far, near);
+	for (Vec3d& v : vertices) v *= Mat4x4::perspectiveProjection(width, height, viewAngle, far, near);
 
-	for (std::pair<Object::triangle,int>& t : cTriangles) {
-		auto isInsideFrustum = [&](const Vec3d& v)->bool {
-			return (v.x <= v.w && v.x >= -v.w &&
-				v.y <= v.w && v.y >= -v.w &&
-				v.z <= v.w && v.z >= -v.w
-				);
+	auto frustumCulling = [&](const std::vector<std::pair<Object::triangle, int>>& i, std::vector<std::pair<Object::triangle, int>>& o) {
+		for (const std::pair<Object::triangle, int>& t : i) {
+			auto isInsideFrustum = [&](const Vec3d& v)->bool {
+				return (v.x <= v.w && v.x >= -v.w &&
+					v.y <= v.w && v.y >= -v.w &&
+					v.z <= v.w && v.z >= -v.w
+					);
 			};
 
-		if (isInsideFrustum(viewVertices[t.first.idx[0]]) ||
-			isInsideFrustum(viewVertices[t.first.idx[1]]) ||
-			isInsideFrustum(viewVertices[t.first.idx[2]])
-			)
-			viewTriangles.emplace_back(t);
-	}
+			if (isInsideFrustum(vertices[t.first.idx[0]]) ||
+				isInsideFrustum(vertices[t.first.idx[1]]) ||
+				isInsideFrustum(vertices[t.first.idx[2]])
+				)
+				o.emplace_back(t);
+		}
+	};
+	frustumCulling(cViewTriangles,viewTriangles);
+	frustumCulling(cTriangles, triangles);
 
-	for (Vec3d& v : viewVertices) v *= Mat4x4::screenTransform(width, height);
+	for (Vec3d& v : vertices) v *= Mat4x4::screenTransform(width, height);
 
 	std::sort(viewTriangles.begin(), viewTriangles.end(), [&](std::pair<Object::triangle,int>& t1, std::pair<Object::triangle, int>& t2) {
-		float z1 = (viewVertices[t1.first.idx[0]].z + viewVertices[t1.first.idx[1]].z + viewVertices[t1.first.idx[2]].z )/3.0f;
-		float z2 = (viewVertices[t2.first.idx[0]].z + viewVertices[t2.first.idx[1]].z + viewVertices[t2.first.idx[2]].z )/3.0f;
+		float z1 = (vertices[t1.first.idx[0]].z + vertices[t1.first.idx[1]].z + vertices[t1.first.idx[2]].z )/3.0f;
+		float z2 = (vertices[t2.first.idx[0]].z + vertices[t2.first.idx[1]].z + vertices[t2.first.idx[2]].z )/3.0f;
 		return (z1 > z2);
 	});
 }
@@ -187,23 +193,47 @@ void Scene::drawTo(sf::RenderWindow& window) {
 		drawLine(v1 * view, v2 * view, c);
 	}
 
-	///drawing the triangles
-	for (std::pair<Object::triangle,int> &sceneTriangle : viewTriangles) {
-		Object::triangle t = sceneTriangle.first;
-		
- 		sf::ConvexShape triangle;
+	
+	///drawing scene in editMode
+	if (editMode) {
+
+		float radius = 5.0f;
+		sf::CircleShape circle(radius);
+		circle.setOrigin({ radius,radius });
+		circle.setFillColor(sf::Color(200, 200, 200));
+
+		for (std::pair<Object::triangle, int>& sceneTriangle : triangles) {
+			Object::triangle t = sceneTriangle.first;
+
+			drawLine(vertices[t.idx[0]], vertices[t.idx[1]]);
+			drawLine(vertices[t.idx[0]], vertices[t.idx[2]]);
+			drawLine(vertices[t.idx[1]], vertices[t.idx[2]]);	
+
+			for (int i = 0;i < 3;i++) {
+				circle.setPosition({vertices[t.idx[i]].x,vertices[t.idx[i]].y });
+				window.draw(circle);
+			}
+		}
+	}
+	else {
+		///drawing scene in viewMode
+		sf::ConvexShape triangle;
 		triangle.setPointCount(3);
-		triangle.setPoint(0, sf::Vector2f(viewVertices[t.idx[0]].x, viewVertices[t.idx[0]].y));
-		triangle.setPoint(1, sf::Vector2f(viewVertices[t.idx[1]].x, viewVertices[t.idx[1]].y));
-		triangle.setPoint(2, sf::Vector2f(viewVertices[t.idx[2]].x, viewVertices[t.idx[2]].y));
-		triangle.setFillColor(sf::Color::Red);
+		for (std::pair<Object::triangle, int>& sceneTriangle : viewTriangles) {
+			Object::triangle t = sceneTriangle.first;
 
-		window.draw(triangle);
+			triangle.setPoint(0, { vertices[t.idx[0]].x, vertices[t.idx[0]].y });
+			triangle.setPoint(1, { vertices[t.idx[1]].x, vertices[t.idx[1]].y });
+			triangle.setPoint(2, { vertices[t.idx[2]].x, vertices[t.idx[2]].y });
+			triangle.setFillColor(sf::Color::Red);
+			window.draw(triangle);
 
-		drawLine(viewVertices[t.idx[0]], viewVertices[t.idx[1]]);
-		drawLine(viewVertices[t.idx[0]], viewVertices[t.idx[2]]);
-		drawLine(viewVertices[t.idx[1]], viewVertices[t.idx[2]]);
-
+			if (objects[sceneTriangle.second].isSelected) {
+				drawLine(vertices[t.idx[0]], vertices[t.idx[1]]);
+				drawLine(vertices[t.idx[0]], vertices[t.idx[2]]);
+				drawLine(vertices[t.idx[1]], vertices[t.idx[2]]);
+			}
+		}
 	}
 
 }

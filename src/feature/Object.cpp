@@ -2,6 +2,8 @@
 
 
 Object::Object() {
+	name = "";
+	isSelected = false;
 	updateWorldMat();
 };
 

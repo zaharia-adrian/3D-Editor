@@ -13,7 +13,6 @@
 
 class Object {
 public:
-	
 	struct triangle {
 		int idx[3];
 		sf::Color c;
@@ -27,6 +26,8 @@ public:
 	Mat4x4 world;
 	Vec3d rot; /// rotation angles
 	Vec3d pos; /// position in the scene 
+	std::string name;
+	bool isSelected;
 
 	bool idxInBounds(int idx) const;
 	
