@@ -4,6 +4,7 @@
 Object::Object() {
 	name = "";
 	isSelected = false;
+	color = sf::Color::Red;
 	updateWorldMat();
 };
 

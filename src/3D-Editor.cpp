@@ -15,11 +15,12 @@ const float SCENE_WIDTH = 1470;
 
 int main()
 {
+    sf::Clock clock;
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "3D-Editor");
     
     Scene *scene = Scene::getInstance();
-    scene->loadFromFile("../../../localProjects/SpaceShip.txt");
+    scene->loadFromFile("../../../localProjects/Spaceship.txt");
     
     sf::Font arial;
     arial.loadFromFile("../../../assets/arial.ttf");
@@ -52,6 +53,7 @@ int main()
                 }
             }
             if (event.type == sf::Event::MouseButtonPressed) {
+                scene->handleClickedTriangle(event);
                 if (btn1.isMouseOver(window)) {
                     btn1.setBackColor(sf::Color::Green);
                     btn1.press();
@@ -73,7 +75,7 @@ int main()
         window.clear(sf::Color(26,26,26));
 
        
-        scene->drawTo(window);
+        scene->drawTo(window, clock);
         btn1.drawTo(window);
         menu.drawTo(window);
  

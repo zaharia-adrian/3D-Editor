@@ -28,6 +28,7 @@ public:
 	Vec3d pos; /// position in the scene 
 	std::string name;
 	bool isSelected;
+	sf::Color color;
 
 	bool idxInBounds(int idx) const;
 	

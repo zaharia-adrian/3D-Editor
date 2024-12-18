@@ -1,4 +1,3 @@
-
 #include "Menu.hpp"
 
 Menu::Menu(float width, float height, float offsetLeft) :

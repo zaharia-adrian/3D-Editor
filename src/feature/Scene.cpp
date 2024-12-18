@@ -84,10 +84,42 @@ void Scene::handleMoveCamera(sf::Event e) {
 		if (e.key.code == sf::Keyboard::Down) camera.moveDown();
 		if (e.key.code == sf::Keyboard::F) camera.moveForward();
 		if (e.key.code == sf::Keyboard::B) camera.moveBackward();
-		
 		updateView();
 	}
 };
+
+bool Scene::triangleClicked(Object::triangle t, sf::Event e) {
+	float mouseX = e.mouseButton.x;
+	float mouseY = e.mouseButton.y;
+
+	sf::Vector2f A(vertices[t.idx[0]].x, vertices[t.idx[0]].y);
+	sf::Vector2f B(vertices[t.idx[1]].x, vertices[t.idx[1]].y);
+	sf::Vector2f C(vertices[t.idx[2]].x, vertices[t.idx[2]].y);
+	sf::Vector2f P(mouseX, mouseY);
+
+	// Calculate the area of the full triangle
+	float denominator = (B.y - C.y) * (A.x - C.x) + (C.x - B.x) * (A.y - C.y);
+
+	// Compute barycentric coordinates
+	float lambda1 = ((B.y - C.y) * (P.x - C.x) + (C.x - B.x) * (P.y - C.y)) / denominator;
+	float lambda2 = ((C.y - A.y) * (P.x - C.x) + (A.x - C.x) * (P.y - C.y)) / denominator;
+	float lambda3 = 1.0f - lambda1 - lambda2;
+
+	// The point is inside the triangle if all barycentric weights are between 0 and 1
+	return (lambda1 >= 0 && lambda1 <= 1) &&
+		(lambda2 >= 0 && lambda2 <= 1) &&
+		(lambda3 >= 0 && lambda3 <= 1);
+}
+
+void Scene::handleClickedTriangle(sf::Event e) {
+	for (auto sceneTriangle = triangles.rbegin(); sceneTriangle != triangles.rend(); sceneTriangle++) {
+		Object::triangle t = sceneTriangle -> first;
+		if (triangleClicked(t, e)) {
+			objects[sceneTriangle->second].isSelected = !objects[sceneTriangle->second].isSelected;
+			break;
+		}
+	}
+}
 
 Scene& Scene::loadFromFile(char* filePath) {
 	FILE* fptr = fopen(filePath, "r");
@@ -123,7 +155,7 @@ Scene& Scene::loadFromFile(char* filePath) {
 	return *this;
 }
 
-void Scene::drawTo(sf::RenderWindow& window) {
+void Scene::drawTo(sf::RenderWindow& window, sf::Clock& transparencyClock) {
 	
 	auto drawLine = [&](Vec3d v1, Vec3d v2, sf::Color c = sf::Color::White) {
 		sf::Vertex line[] = {
@@ -193,7 +225,6 @@ void Scene::drawTo(sf::RenderWindow& window) {
 		drawLine(v1 * view, v2 * view, c);
 	}
 
-	
 	///drawing scene in editMode
 	if (editMode) {
 
@@ -225,13 +256,23 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			triangle.setPoint(0, { vertices[t.idx[0]].x, vertices[t.idx[0]].y });
 			triangle.setPoint(1, { vertices[t.idx[1]].x, vertices[t.idx[1]].y });
 			triangle.setPoint(2, { vertices[t.idx[2]].x, vertices[t.idx[2]].y });
-			triangle.setFillColor(sf::Color::Red);
+			triangle.setFillColor(objects[sceneTriangle.second].color);
 			window.draw(triangle);
 
 			if (objects[sceneTriangle.second].isSelected) {
 				drawLine(vertices[t.idx[0]], vertices[t.idx[1]]);
 				drawLine(vertices[t.idx[0]], vertices[t.idx[2]]);
 				drawLine(vertices[t.idx[1]], vertices[t.idx[2]]);
+
+				/// function that changes the triangle color's alpha
+				float elapsed = transparencyClock.getElapsedTime().asSeconds();
+				float alpha = 128 + 127 * std::sin(elapsed * 5.0f); // 1 to 255
+
+				objects[sceneTriangle.second].color.a = alpha;
+				triangle.setFillColor(objects[sceneTriangle.second].color);
+
+			} else {
+				objects[sceneTriangle.second].color.a = 255;
 			}
 		}
 	}

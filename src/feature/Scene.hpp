@@ -25,8 +25,10 @@ public:
 		return instancePtr;
 	}
 	void updateView();
-	void drawTo(sf::RenderWindow&);
+	void drawTo(sf::RenderWindow&, sf::Clock&);
 	void handleMoveCamera(sf::Event);
+	void handleClickedTriangle(sf::Event);
+	bool triangleClicked(Object::triangle, sf::Event);
 	Scene& loadFromFile(char*);
 
 };
