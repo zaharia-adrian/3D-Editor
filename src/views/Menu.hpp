@@ -4,11 +4,11 @@
 #include <SFML/Graphics.hpp>
 
 #include "../feature/Scene.hpp"
+#include "../../src/managers/FontManager.hpp"
 
 
 class Menu {
 	Scene *scene;
-	sf::Font font;
 	float scrollSpeed = 20.0f;
 	const float viewWidth = 400;
 	const float viewHeight = 500;
@@ -16,7 +16,7 @@ class Menu {
 	const float boxHeight = 35;
 	const float boxMargin = 7;
 	float viewOffset = 0;
-	float objectsListHeight = 4000;
+	float objectsListHeight = 0;
 	float posX, posY;
 	float width, height, offsetLeft;
 	sf::RectangleShape menuBackground, viewBackground;

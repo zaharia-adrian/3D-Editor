@@ -9,9 +9,6 @@ Menu::Menu(float width, float height, float offsetLeft) :
 {
     scene = Scene::getInstance();
 
-    if (!font.loadFromFile("../../../assets/arial.ttf")) {
-        std::cout << "Font not loaded !";
-    };
 
     showObjectProps = showTriangles = showVertices = std::vector<bool>(scene->objects.size(), false);
 
@@ -54,7 +51,7 @@ void Menu::drawTo(sf::RenderWindow& window) const {
     box.setFillColor(sf::Color(200, 200, 200));
 
     sf::Text text;
-    text.setFont(font);
+    text.setFont(*FontManager::getInstance());
     text.setCharacterSize(21);
     text.setFillColor(sf::Color(26, 26, 26));
 

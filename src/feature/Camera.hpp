@@ -1,6 +1,7 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
+#include <SFML/Graphics.hpp>
 #include "../../src/utils/Vec3d.hpp"
 
 
@@ -15,12 +16,8 @@ public:
 	Mat4x4 getViewMat() const;
 	Vec3d getPos() const;
 	void update();
-	void moveLeft();
-	void moveRight();
-	void moveUp();
-	void moveDown();
-	void moveForward();
-	void moveBackward();
+	void handleEvent(sf::Event);
+
 };
 
 #endif

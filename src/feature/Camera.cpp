@@ -42,32 +42,13 @@ Vec3d Camera::getPos() const {
 	return pos;
 }
 
-void Camera::moveLeft() {
-	thetaX += speed;
-	update();
-}
-
-void Camera::moveRight() {
-	
-	thetaX -= speed;
-	update();
-}
- 
-void Camera::moveUp() {
-	thetaY += speed;
-	update();
-}
-void Camera::moveDown() {
-	thetaY -= speed;
-	update();
-}
-void Camera::moveForward() {
-	//if(pos.length()>2.0f)
-	pos += (target * speed);
-	update();
-}
-void Camera::moveBackward() {
-	pos -= (target * speed);
+void Camera::handleEvent(sf::Event event) {
+	if (event.key.code == sf::Keyboard::Left) thetaX += speed;
+	if (event.key.code == sf::Keyboard::Right) thetaX -= speed;
+	if (event.key.code == sf::Keyboard::Up) thetaY += speed;
+	if (event.key.code == sf::Keyboard::Down) thetaY -= speed;
+	if (event.key.code == sf::Keyboard::F) if(pos.getLength()>2.0f) pos += (target * speed);
+	if (event.key.code == sf::Keyboard::B) pos -= (target * speed);
 	update();
 }
 

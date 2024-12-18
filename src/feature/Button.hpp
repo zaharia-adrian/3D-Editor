@@ -3,13 +3,13 @@
 
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "../../src/managers/FontManager.hpp"
 
 class Button {
 public:
     Button();
     Button(std::string, sf::Vector2f, int, sf::Color, sf::Color);
 
-    void setFont(sf::Font&);
     void setBackColor(sf::Color);
     void setTextColor(sf::Color);
     void setPosition(sf::Vector2f);
@@ -26,6 +26,6 @@ private:
     sf::Text text;
     bool pressed;
     bool switchedOn;
-};
+};  
 
 #endif

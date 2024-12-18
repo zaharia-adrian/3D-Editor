@@ -26,7 +26,7 @@ public:
 	}
 	void updateView();
 	void drawTo(sf::RenderWindow&, sf::Clock&);
-	void handleMoveCamera(sf::Event);
+	void handleEvent(sf::Event);
 	void handleClickedTriangle(sf::Event);
 	bool triangleClicked(Object::triangle, sf::Event);
 	Scene& loadFromFile(char*);

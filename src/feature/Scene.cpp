@@ -75,15 +75,10 @@ void Scene::updateView() {
 	});
 }
 
-void Scene::handleMoveCamera(sf::Event e) {
+void Scene::handleEvent(sf::Event event) {
 
-	if (e.type == sf::Event::KeyPressed) {
-		if (e.key.code == sf::Keyboard::Left) camera.moveLeft();
-		if (e.key.code == sf::Keyboard::Right) camera.moveRight();
-		if (e.key.code == sf::Keyboard::Up) camera.moveUp();
-		if (e.key.code == sf::Keyboard::Down) camera.moveDown();
-		if (e.key.code == sf::Keyboard::F) camera.moveForward();
-		if (e.key.code == sf::Keyboard::B) camera.moveBackward();
+	if (event.type == sf::Event::KeyPressed) {
+		camera.handleEvent(event);
 		updateView();
 	}
 };

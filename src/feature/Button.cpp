@@ -10,6 +10,7 @@ Button::Button(std::string t, sf::Vector2f size, int charSize, sf::Color bgColor
     text.setString(t);
     text.setColor(textColor);
     text.setCharacterSize(charSize);
+    text.setFont(*FontManager::getInstance());
 
     button.setSize(size);
     button.setFillColor(bgColor);
@@ -18,9 +19,6 @@ Button::Button(std::string t, sf::Vector2f size, int charSize, sf::Color bgColor
     switchedOn = false;
 }
 
-void Button::setFont(sf::Font& font) {
-    text.setFont(font);
-}
 
 void Button::setBackColor(sf::Color color) {
     button.setFillColor(color);
