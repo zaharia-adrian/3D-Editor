@@ -2,13 +2,15 @@
 #define BUTTON_HPP
 
 #include <iostream>
+#include <functional>
 #include <SFML/Graphics.hpp>
 #include "../../src/managers/FontManager.hpp"
 
 class Button {
+    std::function<void()> callback;
 public:
     Button();
-    Button(std::string, sf::Vector2f, int, sf::Color, sf::Color);
+    Button(std::string, sf::Vector2f, int, sf::Color, sf::Color, std::function<void()> = []() {});
 
     void setBackColor(sf::Color);
     void setTextColor(sf::Color);

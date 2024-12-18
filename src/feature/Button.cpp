@@ -6,7 +6,9 @@ Button::Button() {
     switchedOn = false;
 }
 
-Button::Button(std::string t, sf::Vector2f size, int charSize, sf::Color bgColor, sf::Color textColor) {
+Button::Button(std::string t, sf::Vector2f size, int charSize, sf::Color bgColor, sf::Color textColor, std::function<void()> callback):
+    callback(std::move(callback))
+{
     text.setString(t);
     text.setColor(textColor);
     text.setCharacterSize(charSize);
@@ -43,6 +45,7 @@ void Button::drawTo(sf::RenderWindow& window) {
 
 void Button::press() {
     pressed = true;
+    callback();
 }
 
 void Button::release() {
@@ -74,7 +77,7 @@ bool Button::isMouseOver(sf::RenderWindow& window) {
     float btnyPosHeight = button.getPosition().y + button.getLocalBounds().height;
 
     if (mouseX < btnxPosWidth && mouseX > btnPosX && mouseY < btnyPosHeight && mouseY > btnPosY) {
-        return true;
+        return true;    
     }
 
     return false;
