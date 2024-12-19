@@ -1,4 +1,5 @@
 #include "Button.hpp"
+#include "Scene.hpp"
 #include <SFML/Graphics.hpp>
 
 Button::Button() {
@@ -59,6 +60,37 @@ void Button::switchOnOff() {
 bool Button::isPressed() {
     if (pressed) return true;
     return false;
+}
+
+void Button::handleEvent(sf::RenderWindow& window, sf::Event event) {
+    switch (event.type) {
+    case sf::Event::MouseMoved:
+        if (this->isMouseOver(window)) {
+            if (!this->isPressed()) {
+                this->setBackColor(sf::Color::Blue);
+            }
+        } else {
+            this->setBackColor(sf::Color(128, 128, 128));
+        }
+        break;
+
+    case sf::Event::MouseButtonPressed:
+        if (this->isMouseOver(window)) { /// !!! have to implement for the specific button callback
+            this->setBackColor(sf::Color::Green);
+            this->press();
+            Scene *scene = Scene::getInstance();
+            scene->editMode = !scene->editMode;
+        }
+        break;
+
+    case sf::Event::MouseButtonReleased:
+        this->release();
+        if (this->isMouseOver(window)) {
+            this->switchOnOff();
+            this->setBackColor(sf::Color::Blue);
+        }
+        break;
+    }
 }
 
 bool Button::isSwitchedOn() {

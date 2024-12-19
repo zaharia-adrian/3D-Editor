@@ -7,10 +7,9 @@
 #include "../../src/managers/FontManager.hpp"
 
 class Button {
-    std::function<void()> callback;
 public:
     Button();
-    Button(std::string, sf::Vector2f, int, sf::Color, sf::Color, std::function<void()> = []() {});
+    Button(std::string, sf::Vector2f, int, sf::Color, sf::Color, std::function<void()> = [&](){});
 
     void setBackColor(sf::Color);
     void setTextColor(sf::Color);
@@ -19,11 +18,13 @@ public:
     void press();
     void release();
     void switchOnOff();
+    void handleEvent(sf::RenderWindow&, sf::Event);
 
     bool isPressed();
     bool isSwitchedOn();
     bool isMouseOver(sf::RenderWindow&);
 private:
+    std::function<void()> callback;
     sf::RectangleShape button;
     sf::Text text;
     bool pressed;

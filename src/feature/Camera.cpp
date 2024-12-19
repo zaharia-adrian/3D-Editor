@@ -6,7 +6,8 @@ Camera::Camera() {
 	pos = Vec3d(0.0f,0.f, -10.0f);
 	target = Vec3d(0.0f, 0.0f, 1.0f);
 	up = Vec3d(0.0f, 1.0f, 0.0f);
-	thetaX = thetaY = 0;
+	thetaX = 0;
+	thetaY = -0.06f;
 	update();
 }
 

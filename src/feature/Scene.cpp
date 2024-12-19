@@ -47,7 +47,7 @@ void Scene::updateView() {
 
 	for (Vec3d& v : vertices) v *= Mat4x4::perspectiveProjection(width, height, viewAngle, far, near);
 
-	auto frustumCulling = [&](const std::vector<std::pair<Object::triangle, int>>& i, std::vector<std::pair<Object::triangle, int>>& o) {
+	static auto frustumCulling = [&](const std::vector<std::pair<Object::triangle, int>>& i, std::vector<std::pair<Object::triangle, int>>& o) {
 		for (const std::pair<Object::triangle, int>& t : i) {
 			auto isInsideFrustum = [&](const Vec3d& v)->bool {
 				return (v.x <= v.w && v.x >= -v.w &&
@@ -76,10 +76,15 @@ void Scene::updateView() {
 }
 
 void Scene::handleEvent(sf::Event event) {
-
-	if (event.type == sf::Event::KeyPressed) {
+	switch (event.type) {
+	case sf::Event::KeyPressed:
 		camera.handleEvent(event);
 		updateView();
+		break;
+
+	case sf::Event::MouseButtonPressed:
+		this->handleClickedTriangle(event);
+		break;
 	}
 };
 
@@ -92,22 +97,19 @@ bool Scene::triangleClicked(Object::triangle t, sf::Event e) {
 	sf::Vector2f C(vertices[t.idx[2]].x, vertices[t.idx[2]].y);
 	sf::Vector2f P(mouseX, mouseY);
 
-	// Calculate the area of the full triangle
 	float denominator = (B.y - C.y) * (A.x - C.x) + (C.x - B.x) * (A.y - C.y);
 
-	// Compute barycentric coordinates
 	float lambda1 = ((B.y - C.y) * (P.x - C.x) + (C.x - B.x) * (P.y - C.y)) / denominator;
 	float lambda2 = ((C.y - A.y) * (P.x - C.x) + (A.x - C.x) * (P.y - C.y)) / denominator;
 	float lambda3 = 1.0f - lambda1 - lambda2;
 
-	// The point is inside the triangle if all barycentric weights are between 0 and 1
 	return (lambda1 >= 0 && lambda1 <= 1) &&
 		(lambda2 >= 0 && lambda2 <= 1) &&
 		(lambda3 >= 0 && lambda3 <= 1);
 }
 
 void Scene::handleClickedTriangle(sf::Event e) {
-	for (auto sceneTriangle = triangles.rbegin(); sceneTriangle != triangles.rend(); sceneTriangle++) {
+	for (auto sceneTriangle = viewTriangles.rbegin(); sceneTriangle != viewTriangles.rend(); sceneTriangle++) {
 		Object::triangle t = sceneTriangle -> first;
 		if (triangleClicked(t, e)) {
 			objects[sceneTriangle->second].isSelected = !objects[sceneTriangle->second].isSelected;
@@ -150,9 +152,9 @@ Scene& Scene::loadFromFile(char* filePath) {
 	return *this;
 }
 
-void Scene::drawTo(sf::RenderWindow& window, sf::Clock& transparencyClock) {
+void Scene::drawTo(sf::RenderWindow& window) {
 	
-	auto drawLine = [&](Vec3d v1, Vec3d v2, sf::Color c = sf::Color::White) {
+	static auto drawLine = [&](Vec3d v1, Vec3d v2, sf::Color c = sf::Color::White) {
 		sf::Vertex line[] = {
 			sf::Vertex(sf::Vector2f(v1.x, v1.y)),
 			sf::Vertex(sf::Vector2f(v2.x, v2.y))
@@ -171,7 +173,7 @@ void Scene::drawTo(sf::RenderWindow& window, sf::Clock& transparencyClock) {
 		{{0.0f, 1.0f, near},Vec3d(0.0f, -fov, 1.0f).normalize()}, /// bottom plane
 	};
 
-	auto intersectPlane = [&](int planeIdx, Vec3d& v1, Vec3d& v2) {
+	static auto intersectPlane = [&](int planeIdx, Vec3d& v1, Vec3d& v2) {
 		Vec3d coord = planes[planeIdx][0];
 		Vec3d normal = planes[planeIdx][1];
 
@@ -181,7 +183,7 @@ void Scene::drawTo(sf::RenderWindow& window, sf::Clock& transparencyClock) {
 		return (v2 - v1) * t + v1;
 	};
 
-	auto clipp = [&](Vec3d& v1, Vec3d& v2) {
+	static auto clipp = [&](Vec3d& v1, Vec3d& v2) {
 		for (int planeIdx = 0;planeIdx < planes.size();planeIdx++) {
 			std::vector<Vec3d> inside, outside;
 			if (planes[planeIdx][1].dotProd(v1 - planes[planeIdx][0]) >= -1e-5) inside.emplace_back(v1);
@@ -197,7 +199,7 @@ void Scene::drawTo(sf::RenderWindow& window, sf::Clock& transparencyClock) {
 				return;
 			}
 		}
-		};
+	};
 
 	Mat4x4 mat = camera.getViewMat();
 	Mat4x4 view = Mat4x4::screenTransform(width, height) * Mat4x4::perspectiveProjection(width, height, viewAngle, near, far);
@@ -222,7 +224,6 @@ void Scene::drawTo(sf::RenderWindow& window, sf::Clock& transparencyClock) {
 
 	///drawing scene in editMode
 	if (editMode) {
-
 		float radius = 5.0f;
 		sf::CircleShape circle(radius);
 		circle.setOrigin({ radius,radius });
@@ -260,18 +261,16 @@ void Scene::drawTo(sf::RenderWindow& window, sf::Clock& transparencyClock) {
 				drawLine(vertices[t.idx[1]], vertices[t.idx[2]]);
 
 				/// function that changes the triangle color's alpha
-				float elapsed = transparencyClock.getElapsedTime().asSeconds();
+				float elapsed = internalClock.getElapsedTime().asSeconds();
 				float alpha = 128 + 127 * std::sin(elapsed * 5.0f); // 1 to 255
 
 				objects[sceneTriangle.second].color.a = alpha;
 				triangle.setFillColor(objects[sceneTriangle.second].color);
-
 			} else {
 				objects[sceneTriangle.second].color.a = 255;
 			}
 		}
 	}
-
 }
 
 

@@ -11,8 +11,9 @@ class Scene {
 	Camera camera;
 	float width, height, a, viewAngle, near, far;
 
-	Scene(float = 1470, float = 1080, float = acos(-1) * 0.5f, float = 1.0f, float = 100.f);
+	sf::Clock internalClock;
 
+	Scene(float = 1470, float = 1080, float = acos(-1) * 0.5f, float = 1.0f, float = 100.f);
 public:
 	bool editMode;
 	std::vector<Object> objects;
@@ -25,12 +26,11 @@ public:
 		return instancePtr;
 	}
 	void updateView();
-	void drawTo(sf::RenderWindow&, sf::Clock&);
+	void drawTo(sf::RenderWindow&);
 	void handleEvent(sf::Event);
 	void handleClickedTriangle(sf::Event);
 	bool triangleClicked(Object::triangle, sf::Event);
 	Scene& loadFromFile(char*);
-
 };
 
 #endif
