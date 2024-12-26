@@ -21,7 +21,7 @@ void Scene::updateView() {
 	vertices.clear();
 	triangles.clear();
 	viewTriangles.clear();
-	std::vector<std::pair<Object::triangle, int>> cViewTriangles,cTriangles;
+	std::vector<Object::triangle> cViewTriangles,cTriangles;
 
 	for (int i = 0;i < objects.size();i++) {
 
@@ -38,17 +38,17 @@ void Scene::updateView() {
 			Vec3d line2 = (vertices[t.idx[2] + count] - vertices[t.idx[0] + count]);
 
 			Vec3d normal = line1.crossProd(line2).normalize();
-			cTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
+			cTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.objectIdx, t.triangleIdx, t.c));
 			if (normal.dotProd(vertices[t.idx[0] + count]) < 0)
-				cViewTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.c), i);
+				cViewTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.objectIdx, t.triangleIdx, t.c));
 		}
 		
 	}
 
 	for (Vec3d& v : vertices) v *= Mat4x4::perspectiveProjection(width, height, viewAngle, far, near);
 
-	static auto frustumCulling = [&](const std::vector<std::pair<Object::triangle, int>>& i, std::vector<std::pair<Object::triangle, int>>& o) {
-		for (const std::pair<Object::triangle, int>& t : i) {
+	static auto frustumCulling = [&](const std::vector<Object::triangle>& i, std::vector<Object::triangle>& o) {
+		for (const Object::triangle& t : i) {
 			auto isInsideFrustum = [&](const Vec3d& v)->bool {
 				return (v.x <= v.w && v.x >= -v.w &&
 					v.y <= v.w && v.y >= -v.w &&
@@ -56,9 +56,9 @@ void Scene::updateView() {
 					);
 			};
 
-			if (isInsideFrustum(vertices[t.first.idx[0]]) ||
-				isInsideFrustum(vertices[t.first.idx[1]]) ||
-				isInsideFrustum(vertices[t.first.idx[2]])
+			if (isInsideFrustum(vertices[t.idx[0]]) ||
+				isInsideFrustum(vertices[t.idx[1]]) ||
+				isInsideFrustum(vertices[t.idx[2]])
 				)
 				o.emplace_back(t);
 		}
@@ -68,10 +68,10 @@ void Scene::updateView() {
 
 	for (Vec3d& v : vertices) v *= Mat4x4::screenTransform(width, height);
 
-	std::sort(viewTriangles.begin(), viewTriangles.end(), [&](std::pair<Object::triangle,int>& t1, std::pair<Object::triangle, int>& t2) {
-		float z1 = (vertices[t1.first.idx[0]].z + vertices[t1.first.idx[1]].z + vertices[t1.first.idx[2]].z )/3.0f;
-		float z2 = (vertices[t2.first.idx[0]].z + vertices[t2.first.idx[1]].z + vertices[t2.first.idx[2]].z )/3.0f;
-		return (z1 > z2);
+	std::sort(viewTriangles.begin(), viewTriangles.end(), [&](Object::triangle& t1, Object::triangle& t2) {
+		float z1 = (vertices[t1.idx[0]].z + vertices[t1.idx[1]].z + vertices[t1.idx[2]].z )/3.0f;
+		float z2 = (vertices[t2.idx[0]].z + vertices[t2.idx[1]].z + vertices[t2.idx[2]].z )/3.0f;
+		return (z1 < z2);
 	});
 }
 
@@ -109,10 +109,13 @@ bool Scene::triangleClicked(Object::triangle t, sf::Event e) {
 }
 
 void Scene::handleClickedTriangle(sf::Event e) {
-	for (auto sceneTriangle = viewTriangles.rbegin(); sceneTriangle != viewTriangles.rend(); sceneTriangle++) {
-		Object::triangle t = sceneTriangle -> first;
+	for (auto& sceneTriangle = viewTriangles.rbegin(); sceneTriangle != viewTriangles.rend(); sceneTriangle++) {
+		Object::triangle t = *sceneTriangle;
 		if (triangleClicked(t, e)) {
-			objects[sceneTriangle->second].isSelected = !objects[sceneTriangle->second].isSelected;
+			//objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
+			//sceneTriangle -> isSelected = !sceneTriangle->isSelected;
+			//triangles[t.triangleIdx].isSelected = !triangles[t.triangleIdx].isSelected;
+			objects[t.objectIdx].triangles[t.triangleIdx].isSelected = !objects[t.objectIdx].triangles[t.triangleIdx].isSelected;
 			break;
 		}
 	}
@@ -132,7 +135,7 @@ Scene& Scene::loadFromFile(char* filePath) {
 		if (ch == 'f') {
 			fscanf(fptr, "%d %d %d", &idx0, &idx1, &idx2);
 			if (objects.empty()) objects.emplace_back();
-			objects.back().addTriangle(idx0 - 1, idx1 - 1, idx2 - 1);
+			objects.back().addTriangle(idx0 - 1, idx1 - 1, idx2 - 1, objects.size() - 1, objects.back().triangles.size());
 		}
 		else if (ch == 'v') {
 			fscanf(fptr, "%f %f %f", &x, &y, &z);
@@ -151,6 +154,21 @@ Scene& Scene::loadFromFile(char* filePath) {
 	updateView();
 	return *this;
 }
+
+/*
+sf::Color operator - (sf::Color c1, sf::Color c2) {
+	sf::Color c3(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a);
+	return c3;
+}
+*/
+
+/*
+void operator -= (sf::Color& c1, sf::Color c2) {
+	sf::Color c3(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b);
+	c1 = c3;
+	return;
+}
+*/
 
 void Scene::drawTo(sf::RenderWindow& window) {
 	
@@ -229,8 +247,7 @@ void Scene::drawTo(sf::RenderWindow& window) {
 		circle.setOrigin({ radius,radius });
 		circle.setFillColor(sf::Color(200, 200, 200));
 
-		for (std::pair<Object::triangle, int>& sceneTriangle : triangles) {
-			Object::triangle t = sceneTriangle.first;
+		for (Object::triangle& t : triangles) {
 
 			drawLine(vertices[t.idx[0]], vertices[t.idx[1]]);
 			drawLine(vertices[t.idx[0]], vertices[t.idx[2]]);
@@ -246,28 +263,58 @@ void Scene::drawTo(sf::RenderWindow& window) {
 		///drawing scene in viewMode
 		sf::ConvexShape triangle;
 		triangle.setPointCount(3);
-		for (std::pair<Object::triangle, int>& sceneTriangle : viewTriangles) {
-			Object::triangle t = sceneTriangle.first;
+		for (Object::triangle& t : viewTriangles) {
 
 			triangle.setPoint(0, { vertices[t.idx[0]].x, vertices[t.idx[0]].y });
 			triangle.setPoint(1, { vertices[t.idx[1]].x, vertices[t.idx[1]].y });
 			triangle.setPoint(2, { vertices[t.idx[2]].x, vertices[t.idx[2]].y });
-			triangle.setFillColor(objects[sceneTriangle.second].color);
+			triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
 			window.draw(triangle);
 
-			if (objects[sceneTriangle.second].isSelected) {
-				drawLine(vertices[t.idx[0]], vertices[t.idx[1]]);
-				drawLine(vertices[t.idx[0]], vertices[t.idx[2]]);
-				drawLine(vertices[t.idx[1]], vertices[t.idx[2]]);
+			///sf::Color clr = objects[t.objectIdx].triangles[t.triangleIdx].c;
+			///std::cout << (float) clr.r << ' ' << (float) clr.g << ' ' << (float) clr.b << ' ' << (float) clr.a << '\n';
 
-				/// function that changes the triangle color's alpha
-				float elapsed = internalClock.getElapsedTime().asSeconds();
-				float alpha = 128 + 127 * std::sin(elapsed * 5.0f); // 1 to 255
+			/// hardcoded for green darker outline
+			drawLine(vertices[t.idx[0]], vertices[t.idx[1]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+			drawLine(vertices[t.idx[0]], vertices[t.idx[2]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+			drawLine(vertices[t.idx[1]], vertices[t.idx[2]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
 
-				objects[sceneTriangle.second].color.a = alpha;
-				triangle.setFillColor(objects[sceneTriangle.second].color);
-			} else {
-				objects[sceneTriangle.second].color.a = 255;
+			//if (internalClock.getElapsedTime().asSeconds() < 2)
+			//std::cout << t.triangleIdx << '\n';
+
+			if (false) { // object select mode
+				if (objects[t.objectIdx].isSelected) {
+
+					drawLine(vertices[t.idx[0]], vertices[t.idx[1]]);
+					drawLine(vertices[t.idx[0]], vertices[t.idx[2]]);
+					drawLine(vertices[t.idx[1]], vertices[t.idx[2]]);
+
+					// function that changes the triangle color's alpha
+					float elapsed = internalClock.getElapsedTime().asSeconds();
+					float alpha = 128 + 127 * std::sin(elapsed * 7.5f); // 1 to 255
+
+					objects[t.objectIdx].color.a = alpha;
+					triangle.setFillColor(objects[t.objectIdx].color);
+				}
+				else {
+					objects[t.objectIdx].color.a = 255;
+				}
+			} else { // triangle select mode
+				if (objects[t.objectIdx].triangles[t.triangleIdx].isSelected) {
+					drawLine(vertices[t.idx[0]], vertices[t.idx[1]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+					drawLine(vertices[t.idx[0]], vertices[t.idx[2]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+					drawLine(vertices[t.idx[1]], vertices[t.idx[2]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0)/*, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(10, 10, 10)*/);
+
+					// function that changes the triangle color's alpha
+					float elapsed = internalClock.getElapsedTime().asSeconds();
+					float alpha = 128 + 127 * std::sin(elapsed * 5.0f); // 1 to 255
+
+					objects[t.objectIdx].triangles[t.triangleIdx].c.a = alpha;
+					triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
+				}
+				else {
+					objects[t.objectIdx].triangles[t.triangleIdx].c.a = 255;
+				}
 			}
 		}
 	}

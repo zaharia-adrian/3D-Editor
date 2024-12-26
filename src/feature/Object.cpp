@@ -16,9 +16,9 @@ bool Object::idxInBounds(int idx) const {
 	return (0 <= idx && idx <= vertices.size() - 1);
 };
 
-void Object::addTriangle(int idx0, int idx1, int idx2, sf::Color _c) {
+void Object::addTriangle(int idx0, int idx1, int idx2, int _objectIdx, int _triangleIdx, sf::Color _c) {
 	if (idxInBounds(idx0) && idxInBounds(idx1) && idxInBounds(idx2))
-		triangles.emplace_back(idx0, idx1, idx2, _c);
+		triangles.emplace_back(idx0, idx1, idx2, _objectIdx, _triangleIdx, _c);
 };
 
 void Object::addVertex(const Vec3d& v) {

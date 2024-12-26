@@ -17,8 +17,10 @@ class Scene {
 public:
 	bool editMode;
 	std::vector<Object> objects;
-	std::vector<std::pair<Object::triangle, int>> viewTriangles, triangles;
+	std::vector<Object::triangle> viewTriangles, triangles;
 	std::vector<Vec3d> vertices;
+
+	// std::vector<int> triangleObjectIdx, triangleIdx, vertexIdx;
 
 	static Scene* getInstance() {
 		if (instancePtr == nullptr)

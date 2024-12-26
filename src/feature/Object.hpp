@@ -16,9 +16,14 @@ public:
 	struct triangle {
 		int idx[3];
 		sf::Color c;
-		triangle(int idx0, int idx1, int idx2, const sf::Color& _c){
+		int objectIdx, triangleIdx;
+		bool isSelected;
+		triangle(int idx0, int idx1, int idx2, int _objectIdx, int _triangleIdx, const sf::Color _c = sf::Color::Green, bool _isSelected = false){
 			idx[0] = idx0; idx[1] = idx1; idx[2] = idx2;
 			c = _c;
+			objectIdx = _objectIdx;
+			triangleIdx = _triangleIdx;
+			isSelected = _isSelected;
 		}
 	};
 	std::vector<triangle> triangles;
@@ -34,7 +39,7 @@ public:
 	
 	Object();
 	Mat4x4 getWorldMat() const;
-	void addTriangle(int, int, int, sf::Color = sf::Color::White);
+	void addTriangle(int, int, int, int, int, sf::Color = sf::Color::Green);
 	void addVertex(const Vec3d&);
 	void addVertex(float, float, float, float = 1);
 

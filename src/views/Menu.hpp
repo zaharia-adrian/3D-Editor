@@ -16,7 +16,7 @@ class Menu {
 	const float boxHeight = 35;
 	const float boxMargin = 7;
 	float viewOffset = 0;
-	float objectsListHeight = 0;
+	float objectsListHeight = 4000;
 	float posX, posY;
 	float width, height, offsetLeft;
 	sf::RectangleShape menuBackground, viewBackground;

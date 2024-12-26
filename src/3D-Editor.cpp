@@ -23,7 +23,7 @@ int main()
     
 
     sf::Color Gray(128, 128, 128);
-    Button btn1("Switch mode", { 150, 40 }, 20, Gray, sf::Color::Black);
+    Button btn1("Edit Mode", { 150, 40 }, 20, Gray, sf::Color::Black);
     btn1.setPosition({ 1295, 25 });
 
     Menu menu(WIDTH - SCENE_WIDTH, HEIGHT, SCENE_WIDTH);
