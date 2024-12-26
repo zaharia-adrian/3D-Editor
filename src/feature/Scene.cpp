@@ -242,10 +242,10 @@ void Scene::drawTo(sf::RenderWindow& window) {
 
 	///drawing scene in editMode
 	if (editMode) {
-		float radius = 5.0f;
+		float radius = 7.0f;
 		sf::CircleShape circle(radius);
 		circle.setOrigin({ radius,radius });
-		circle.setFillColor(sf::Color(200, 200, 200));
+		circle.setFillColor(sf::Color(200, 200, 200, 100));
 
 		for (Object::triangle& t : triangles) {
 

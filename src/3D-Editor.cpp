@@ -10,21 +10,16 @@
 #include "../src/managers/FontManager.hpp"
 #include <filesystem>
 
-const float HEIGHT = 1080; ///window width
-const float WIDTH = 1920; ///window height
+const float HEIGHT = 1080; ///window height
+const float WIDTH = 1920; ///window width
 const float SCENE_WIDTH = 1470;
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "3D-Editor");
-    
-    Scene *scene = Scene::getInstance();
-    scene->loadFromFile("../../../localProjects/Spaceship.txt");
-    
 
-    sf::Color Gray(128, 128, 128);
-    Button btn1("Edit Mode", { 150, 40 }, 20, Gray, sf::Color::Black);
-    btn1.setPosition({ 1295, 25 });
+    Scene* scene = Scene::getInstance();
+    scene->loadFromFile("../../../localProjects/Cube.txt");
 
     Menu menu(WIDTH - SCENE_WIDTH, HEIGHT, SCENE_WIDTH);
 
@@ -36,18 +31,16 @@ int main()
             if (event.type == sf::Event::Closed ||
                 event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
                 window.close();
-           
+
             scene->handleEvent(event);
-            btn1.handleEvent(window, event);
-            menu.handleEvent(event);
+            menu.handleEvent(window, event);
         }
-        
-        window.clear(sf::Color(26,26,26));
-       
+
+        window.clear(sf::Color(26, 26, 26));
+
         scene->drawTo(window);
-        btn1.drawTo(window);
         menu.drawTo(window);
- 
+
         window.display();
     }
 

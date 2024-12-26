@@ -5,6 +5,7 @@
 
 #include "../feature/Scene.hpp"
 #include "../../src/managers/FontManager.hpp"
+#include "../../src/feature/Button.hpp"
 
 
 class Menu {
@@ -21,11 +22,13 @@ class Menu {
 	float width, height, offsetLeft;
 	sf::RectangleShape menuBackground, viewBackground;
 	std::vector<bool> showTriangles, showVertices, showObjectProps;
+	std::vector<Button> objectsListItems, menuButtons;
 
 public:
 	Menu(float, float, float);
-	void handleEvent(sf::Event);
-	void drawTo(sf::RenderWindow &) const;
+	void updateMenu();
+	void handleEvent(sf::RenderWindow &, sf::Event);
+	void drawTo(sf::RenderWindow &);
 };
 
 #endif

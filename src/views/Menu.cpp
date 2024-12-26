@@ -9,93 +9,94 @@ Menu::Menu(float width, float height, float offsetLeft) :
 {
     scene = Scene::getInstance();
 
-
-    showObjectProps = showTriangles = showVertices = std::vector<bool>(scene->objects.size(), false);
-
     ///menu background
     menuBackground = sf::RectangleShape({ width, height });
     menuBackground.setPosition({ offsetLeft, 0.0f });
-	menuBackground.setFillColor(sf::Color(128, 128, 128));
+    menuBackground.setFillColor(sf::Color(128, 128, 128));
 
     ///view backgound
     viewBackground = sf::RectangleShape({ viewWidth, viewHeight });
     viewBackground.setPosition({ posX, posY });
     viewBackground.setFillColor(sf::Color(100, 100, 100));
 
+    menuButtons = {
+        Button("Edit mode", { 150, 40 }, { 1295, 25 }, 20, sf::Color(128,128,128), sf::Color::Black, [&]() {
+        scene->editMode = !scene->editMode;
+        }),
+            /// additional menu buttons would be added here
+    };
+
+    updateMenu();
 };
 
-void Menu::handleEvent(sf::Event event) {
-    if (event.type == sf::Event::MouseWheelScrolled) {
-        viewOffset -= event.mouseWheelScroll.delta * scrollSpeed;
-        viewOffset = std::max(0.0f, std::min(viewOffset, objectsListHeight)); ///makes sure 0 <= viewOffset <= objectsListHeight
-    }else if (event.type == sf::Event::MouseButtonPressed) {
-        float mouseX = event.mouseButton.x;
-        float mouseY = event.mouseButton.y;
+void Menu::handleEvent(sf::RenderWindow& window, sf::Event event) {
+    float mouseX = sf::Mouse::getPosition(window).x;
+    float mouseY = sf::Mouse::getPosition(window).y;
 
+    if (posX <= mouseX && mouseX <= posX + viewWidth && posY <= mouseY && mouseY <= posY + viewHeight)
+        for (Button& b : objectsListItems)
+            b.handleEvent(window, event, { posX, posY - viewOffset });
+
+    for (Button& b : menuButtons)
+        b.handleEvent(window, event);
+
+
+    switch (event.type) {
+    case sf::Event::MouseWheelScrolled:
+        if (posX <= mouseX && mouseX <= posX + viewWidth && posY <= mouseY && mouseY <= posY + viewHeight) {
+            viewOffset -= event.mouseWheelScroll.delta * scrollSpeed;
+            viewOffset = std::max(0.0f, std::min(viewOffset, objectsListHeight)); ///makes sure 0 <= viewOffset <= objectsListHeight
+        }
+        break;
 
     }
+
 }
 
-void Menu::drawTo(sf::RenderWindow& window) const {
+void Menu::updateMenu() {
+    objectsListItems.clear();
 
-    sf::RenderTexture renderTexture;
-    renderTexture.create(viewWidth, viewHeight);
-    renderTexture.clear(sf::Color::Transparent);
-    
-
-    sf::View scrollView(sf::FloatRect(0, viewOffset, viewWidth, viewHeight));
-    
-    renderTexture.setView(scrollView);
-
-    sf::RectangleShape box({ boxWidth, boxHeight });
-    box.setFillColor(sf::Color(200, 200, 200));
-
-    sf::Text text;
-    text.setFont(*FontManager::getInstance());
-    text.setCharacterSize(21);
-    text.setFillColor(sf::Color(26, 26, 26));
-
-    int itemsCount = 0;
-    for (size_t idx = 0; idx < scene->objects.size(); ++idx) {
-        
-        auto drawBoxAndText = [&](float addOffset, std::string textStr) {
-            box.setPosition((2 + addOffset) * boxMargin, 2 * boxMargin + itemsCount * (boxHeight + boxMargin));
-            renderTexture.draw(box);
-
-            text.setString(textStr);
-            text.setPosition((2 + addOffset) * boxMargin + 5 + addOffset, 2 * boxMargin + 5 + itemsCount * (boxHeight + boxMargin));
-            renderTexture.draw(text);
-            itemsCount++;
-        };
+    for (int idx = 0; idx < scene->objects.size(); ++idx) {
 
         std::string objectName = scene->objects[idx].name;
         if (objectName == "") objectName = "Object " + std::to_string(idx);
 
-        drawBoxAndText(0,objectName);
-        
-        if (showObjectProps[idx]) {
-            drawBoxAndText(2, "Triangles");
-            if (showTriangles[idx]) 
-                for (int i = 0;i < scene->objects[idx].triangles.size();i++)
-                    drawBoxAndText(4, "Triangle " + std::to_string(i));
-        }
-        if (showObjectProps[idx]) {
-            drawBoxAndText(2, "Vertices");
-            if (showTriangles[idx])
-                for (int i = 0;i < scene->objects[idx].vertices.size();i++)
-                    drawBoxAndText(4, "Vertex " + std::to_string(i));
-        }
+        sf::Vector2f pos(2 * boxMargin, 2 * boxMargin + objectsListItems.size() * (boxHeight + boxMargin));
+        sf::Vector2f size(boxWidth, boxHeight);
 
+        objectsListItems.emplace_back(objectName, size, pos, 21, sf::Color::Blue, sf::Color::Black, [idx, this]() {
+            scene->objects[idx].isSelected = !scene->objects[idx].isSelected;
+           });
     }
+}
+
+void Menu::drawTo(sf::RenderWindow& window) {
+
+    sf::RenderTexture renderTexture;
+    renderTexture.create(viewWidth, viewHeight);
+    renderTexture.clear(sf::Color::Transparent);
+
+
+    sf::View scrollView(sf::FloatRect(0, viewOffset, viewWidth, viewHeight));
+
+    renderTexture.setView(scrollView);
+
+    for (Button& b : objectsListItems)
+        b.drawTo(renderTexture);
+
     renderTexture.display();
 
-    float posX = offsetLeft + (width - viewWidth) / 2.0f;
-    float posY = (width - viewWidth) / 2.0f;
 
     sf::Sprite clippedSprite(renderTexture.getTexture());
-    clippedSprite.setPosition(posX, posY);
+    clippedSprite.move(posX, posY);
+
 
     window.draw(menuBackground);
-    window.draw(viewBackground);    
+    window.draw(viewBackground);
     window.draw(clippedSprite);
+
+    for (Button& b : menuButtons)
+        b.drawTo(window);
 }
+
+

@@ -9,22 +9,23 @@
 class Button {
 public:
     Button();
-    Button(std::string, sf::Vector2f, int, sf::Color, sf::Color, std::function<void()> = [&](){});
+    Button(std::string, sf::Vector2f, sf::Vector2f, int, sf::Color, sf::Color, std::function<void()> = [&](){});
 
     void setBackColor(sf::Color);
     void setTextColor(sf::Color);
     void setPosition(sf::Vector2f);
     void drawTo(sf::RenderWindow&);
+    void drawTo(sf::RenderTexture&);
     void press();
     void release();
     void switchOnOff();
-    void handleEvent(sf::RenderWindow&, sf::Event);
+    void handleEvent(sf::RenderWindow&, sf::Event, sf::Vector2f = sf::Vector2f());
 
     bool isPressed();
     bool isSwitchedOn();
-    bool isMouseOver(sf::RenderWindow&);
+    bool isMouseOver(sf::RenderWindow&, sf::Vector2f = sf::Vector2f());
 private:
-    std::function<void()> callback;
+    std::function<void()> onClick;
     sf::RectangleShape button;
     sf::Text text;
     bool pressed;

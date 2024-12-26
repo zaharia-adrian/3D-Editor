@@ -7,16 +7,20 @@ Button::Button() {
     switchedOn = false;
 }
 
-Button::Button(std::string t, sf::Vector2f size, int charSize, sf::Color bgColor, sf::Color textColor, std::function<void()> callback):
-    callback(std::move(callback))
+Button::Button(std::string t, sf::Vector2f size, sf::Vector2f pos, int charSize, sf::Color bgColor, sf::Color textColor, std::function<void()> onClick) :
+    onClick(std::move(onClick))
 {
+
     text.setString(t);
     text.setColor(textColor);
     text.setCharacterSize(charSize);
     text.setFont(*FontManager::getInstance());
 
+
     button.setSize(size);
     button.setFillColor(bgColor);
+
+    setPosition(pos);
 
     pressed = false;
     switchedOn = false;
@@ -34,8 +38,9 @@ void Button::setTextColor(sf::Color color) {
 void Button::setPosition(sf::Vector2f pos) {
     button.setPosition(pos);
 
-    float xPos = (pos.x + button.getLocalBounds().width / 2) - (text.getLocalBounds().width / 2);
-    float yPos = (pos.y + button.getLocalBounds().height / 2) - (text.getLocalBounds().height / 2);
+    float xPos = pos.x + (button.getLocalBounds().width - text.getLocalBounds().width) / 2 - (text.getLocalBounds().left);
+    float yPos = pos.y + (button.getLocalBounds().height - text.getLocalBounds().height) / 2 - (text.getLocalBounds().top);
+
     text.setPosition({ xPos, yPos });
 }
 
@@ -44,9 +49,14 @@ void Button::drawTo(sf::RenderWindow& window) {
     window.draw(text);
 }
 
+void Button::drawTo(sf::RenderTexture& renderTexture) {
+    renderTexture.draw(button);
+    renderTexture.draw(text);
+}
+
 void Button::press() {
     pressed = true;
-    callback();
+    onClick();
 }
 
 void Button::release() {
@@ -62,24 +72,24 @@ bool Button::isPressed() {
     return false;
 }
 
-void Button::handleEvent(sf::RenderWindow& window, sf::Event event) {
+void Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f offset) { /// offset for buttons on renderTexture
     switch (event.type) {
     case sf::Event::MouseMoved:
-        if (this->isMouseOver(window)) {
+        if (this->isMouseOver(window, offset)) {
             if (!this->isPressed()) {
                 this->setBackColor(sf::Color::Blue);
             }
-        } else {
+        }
+        else {
             this->setBackColor(sf::Color(128, 128, 128));
         }
         break;
 
     case sf::Event::MouseButtonPressed:
-        if (this->isMouseOver(window)) { /// !!! have to implement for the specific button callback
+
+        if (this->isMouseOver(window, offset)) { /// !!! have to implement for the specific button callback
             this->setBackColor(sf::Color::Green);
             this->press();
-            Scene *scene = Scene::getInstance();
-            scene->editMode = !scene->editMode;
         }
         break;
 
@@ -98,18 +108,18 @@ bool Button::isSwitchedOn() {
     return false;
 }
 
-bool Button::isMouseOver(sf::RenderWindow& window) {
+bool Button::isMouseOver(sf::RenderWindow& window, sf::Vector2f offset) {
     float mouseX = sf::Mouse::getPosition(window).x;
     float mouseY = sf::Mouse::getPosition(window).y;
 
-    float btnPosX = button.getPosition().x;
-    float btnPosY = button.getPosition().y;
+    float btnPosX = button.getPosition().x + offset.x;
+    float btnPosY = button.getPosition().y + offset.y;
 
-    float btnxPosWidth = button.getPosition().x + button.getLocalBounds().width;
-    float btnyPosHeight = button.getPosition().y + button.getLocalBounds().height;
+    float btnxPosWidth = btnPosX + button.getLocalBounds().width;
+    float btnyPosHeight = btnPosY + button.getLocalBounds().height;
 
     if (mouseX < btnxPosWidth && mouseX > btnPosX && mouseY < btnyPosHeight && mouseY > btnPosY) {
-        return true;    
+        return true;
     }
 
     return false;
