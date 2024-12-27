@@ -6,10 +6,12 @@
 #include "../feature/Scene.hpp"
 #include "../../src/managers/FontManager.hpp"
 #include "../../src/feature/Button.hpp"
+#include "../../src/views/Home.hpp"
 
 
 class Menu {
 	Scene *scene;
+	Home *home;
 	float scrollSpeed = 20.0f;
 	const float viewWidth = 400;
 	const float viewHeight = 500;

@@ -1,20 +1,28 @@
 #include "Scene.hpp"
 
+
 Scene* Scene::instancePtr = nullptr;
 
-Scene::Scene(float width, float height, float viewAngle, float near, float far):
+Scene::Scene(float width, float height, float viewAngle, float znear, float zfar):
 	width(width),
 	height(height),
-	near(near),
-	far(far),
+	znear(znear),
+	zfar(zfar),
 	viewAngle(viewAngle),
 	editMode(false)
 {
 	a = width / height;
-	updateView();
+
 };
 
-
+void Scene::init(std::string _filePath, bool newFile) {
+	if (!newFile) FileManager::loadSceneFromFile(_filePath.c_str());
+	updateView();
+}
+void Scene::save() {
+	FileManager::saveSceneToFile(filePath.c_str());
+	objects.clear();
+}
 
 void Scene::updateView() {
 	
@@ -45,7 +53,7 @@ void Scene::updateView() {
 		
 	}
 
-	for (Vec3d& v : vertices) v *= Mat4x4::perspectiveProjection(width, height, viewAngle, far, near);
+	for (Vec3d& v : vertices) v *= Mat4x4::perspectiveProjection(width, height, viewAngle, zfar, znear);
 
 	static auto frustumCulling = [&](const std::vector<Object::triangle>& i, std::vector<Object::triangle>& o) {
 		for (const Object::triangle& t : i) {
@@ -120,40 +128,7 @@ void Scene::handleClickedTriangle(sf::Event e) {
 		}
 	}
 }
-
-Scene& Scene::loadFromFile(char* filePath) {
-	FILE* fptr = fopen(filePath, "r");
-	if (fptr == NULL) {
-		std::cout << "File not found!";
-		return *this;
-	}
-	char ch;
-	int idx0, idx1, idx2;
-	float x, y, z;
-
-	while ((ch = fgetc(fptr)) != EOF) {
-		if (ch == 'f') {
-			fscanf(fptr, "%d %d %d", &idx0, &idx1, &idx2);
-			if (objects.empty()) objects.emplace_back();
-			objects.back().addTriangle(idx0 - 1, idx1 - 1, idx2 - 1, objects.size() - 1, objects.back().triangles.size());
-		}
-		else if (ch == 'v') {
-			fscanf(fptr, "%f %f %f", &x, &y, &z);
-			if (objects.empty()) objects.emplace_back();
-			objects.back().addVertex(x, y, z);
-		}
-		else if (ch == 'o') {
-			objects.emplace_back();
-		}
-		else if (ch != '\n') {
-			while (getc(fptr) != '\n' && !feof(fptr)); ///ignore the rest of the line and set cursor on the next one
-		}
-	}
-	fclose(fptr);
-
-	updateView();
-	return *this;
-}
+	
 
 /*
 sf::Color operator - (sf::Color c1, sf::Color c2) {
@@ -183,12 +158,12 @@ void Scene::drawTo(sf::RenderWindow& window) {
 
 	float fov = 1 / tan(viewAngle / 2.0f);
 	std::vector<std::vector<Vec3d>> planes = {
-		{{0.0f, 0.0f, 0.1f},Vec3d(0.0f, 0.0f, 1.0f)}, /// near plane
-		{{0.0f, 0.0f, far},Vec3d(0.0f, 0.0f, -1.0f)}, /// far plane
-		{{-a, 0.0f, near},Vec3d(fov / a, 0.0f, 1.0f).normalize()}, /// left plane
-		{{a, 0.0f, near},Vec3d(-fov / a, 0.0f, 1.0f).normalize()}, /// right plane
-		{{0.0f, -1.0f, near},Vec3d(0.0f, fov, 1.0f).normalize()},///top plane
-		{{0.0f, 1.0f, near},Vec3d(0.0f, -fov, 1.0f).normalize()}, /// bottom plane
+		{{0.0f, 0.0f, 0.1f},Vec3d(0.0f, 0.0f, 1.0f)}, /// znear plane
+		{{0.0f, 0.0f, zfar},Vec3d(0.0f, 0.0f, -1.0f)}, /// zfar plane
+		{{-a, 0.0f, znear},Vec3d(fov / a, 0.0f, 1.0f).normalize()}, /// left plane
+		{{a, 0.0f, znear},Vec3d(-fov / a, 0.0f, 1.0f).normalize()}, /// right plane
+		{{0.0f, -1.0f, znear},Vec3d(0.0f, fov, 1.0f).normalize()},///top plane
+		{{0.0f, 1.0f, znear},Vec3d(0.0f, -fov, 1.0f).normalize()}, /// bottom plane
 	};
 
 	static auto intersectPlane = [&](int planeIdx, Vec3d& v1, Vec3d& v2) {
@@ -220,7 +195,7 @@ void Scene::drawTo(sf::RenderWindow& window) {
 	};
 
 	Mat4x4 mat = camera.getViewMat();
-	Mat4x4 view = Mat4x4::screenTransform(width, height) * Mat4x4::perspectiveProjection(width, height, viewAngle, near, far);
+	Mat4x4 view = Mat4x4::screenTransform(width, height) * Mat4x4::perspectiveProjection(width, height, viewAngle, znear, zfar);
 
 	///drawing the grid
 	Vec3d v1, v2;

@@ -8,6 +8,7 @@ Menu::Menu(float width, float height, float offsetLeft) :
     posY((width - viewWidth) / 2.0f)
 {
     scene = Scene::getInstance();
+    home = Home::getInstance();
 
     ///menu background
     menuBackground = sf::RectangleShape({ width, height });
@@ -21,7 +22,11 @@ Menu::Menu(float width, float height, float offsetLeft) :
 
     menuButtons = {
         Button("Edit mode", { 150, 40 }, { 1295, 25 }, 20, sf::Color(128,128,128), sf::Color::Black, [&]() {
-        scene->editMode = !scene->editMode;
+            scene->editMode = !scene->editMode;
+        }),
+        Button("Save and close", { 150, 40 }, { 1295, 75 }, 20, sf::Color(128,128,128), sf::Color::Black, [&]() {
+            scene->save();
+            home->homePageView = true;
         }),
             /// additional menu buttons would be added here
     };
@@ -72,6 +77,7 @@ void Menu::updateMenu() {
 
 void Menu::drawTo(sf::RenderWindow& window) {
 
+    updateMenu(); ///should be moved to scene class, when the objects array changes
     sf::RenderTexture renderTexture;
     renderTexture.create(viewWidth, viewHeight);
     renderTexture.clear(sf::Color::Transparent);
