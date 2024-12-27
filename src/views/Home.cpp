@@ -6,11 +6,11 @@ Home::Home() {
 	homePageView = true;
 	scene = Scene::getInstance();
 	homeButtons = {
-		Button("New project", {130,30},{335,200},21,sf::Color(128, 128, 128), sf::Color::Black, [&]() {
+		Button("New project", {150,40},{335,200},21, ColorManager::primary, ColorManager::light, [&]() {
 			scene->init("../../../localProjects/", true); /// + fileName (implement naming modal window)
 			homePageView = false;
 		}),
-		Button("Open project", {130,30},{475,200},21,sf::Color(128, 128, 128), sf::Color::Black, [&]() {
+		Button("Open project", {150,40},{495,200},21, ColorManager::primary, ColorManager::light, [&]() {
 			if (FileManager::loadSceneFromFileDialog()) {
 				scene->updateView();
 				homePageView = false;
@@ -24,8 +24,8 @@ void Home::update() {
 	sf::Vector2f size(400,50);
 	
 	for (std::string &fileName : FileManager::getFilesList()) {
-		sf::Vector2f pos(345, 300 + filesListItems.size() * (size.y + 10));
-		filesListItems.emplace_back(fileName.substr(0, fileName.size() - 4), size, pos, 30, sf::Color(36,36,36), sf::Color::White, [fileName, this]() {
+		sf::Vector2f pos(335, 300 + filesListItems.size() * (size.y + 10));
+		filesListItems.emplace_back(fileName.substr(0, fileName.size() - 4), size, pos, 30, ColorManager::light, ColorManager::primary, [fileName, this]() {
 			scene->init("../../../localProjects/" + fileName);
 			homePageView = false;
 		});
@@ -43,7 +43,7 @@ void Home::handleEvent(sf::RenderWindow& window, sf::Event event) {
 void Home::drawTo(sf::RenderWindow& window) {
 	sf::Text title("3D Editor", *FontManager::getInstance(), 75);
 	title.setPosition(335, 75);
-	title.setColor(sf::Color::White);
+	title.setColor(ColorManager::light);
 	window.draw(title);
 
 	for (Button& b : homeButtons)

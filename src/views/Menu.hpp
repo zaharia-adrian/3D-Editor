@@ -5,6 +5,7 @@
 
 #include "../feature/Scene.hpp"
 #include "../../src/managers/FontManager.hpp"
+#include "../../src/managers/ColorManager.hpp"
 #include "../../src/feature/Button.hpp"
 #include "../../src/views/Home.hpp"
 

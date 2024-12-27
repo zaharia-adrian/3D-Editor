@@ -13,18 +13,18 @@ Menu::Menu(float width, float height, float offsetLeft) :
     ///menu background
     menuBackground = sf::RectangleShape({ width, height });
     menuBackground.setPosition({ offsetLeft, 0.0f });
-    menuBackground.setFillColor(sf::Color(128, 128, 128));
+    menuBackground.setFillColor(ColorManager::secondary);
 
     ///view backgound
     viewBackground = sf::RectangleShape({ viewWidth, viewHeight });
     viewBackground.setPosition({ posX, posY });
-    viewBackground.setFillColor(sf::Color(100, 100, 100));
+    viewBackground.setFillColor(ColorManager::primary);
 
     menuButtons = {
-        Button("Edit mode", { 150, 40 }, { 1295, 25 }, 20, sf::Color(128,128,128), sf::Color::Black, [&]() {
+        Button("Edit mode", { 150, 40 }, { 1295, 25 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
             scene->editMode = !scene->editMode;
         }),
-        Button("Save and close", { 150, 40 }, { 1295, 75 }, 20, sf::Color(128,128,128), sf::Color::Black, [&]() {
+        Button("Save and close", { 150, 40 }, { 1295, 75 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
             scene->save();
             home->homePageView = true;
         }),
@@ -69,7 +69,7 @@ void Menu::updateMenu() {
         sf::Vector2f pos(2 * boxMargin, 2 * boxMargin + objectsListItems.size() * (boxHeight + boxMargin));
         sf::Vector2f size(boxWidth, boxHeight);
 
-        objectsListItems.emplace_back(objectName, size, pos, 21, sf::Color::Blue, sf::Color::Black, [idx, this]() {
+        objectsListItems.emplace_back(objectName, size, pos, 21, ColorManager::light, ColorManager::dark, [idx, this]() {
             scene->objects[idx].isSelected = !scene->objects[idx].isSelected;
            });
     }

@@ -7,8 +7,9 @@ Button::Button() {
     switchedOn = false;
 }
 
-Button::Button(std::string t, sf::Vector2f size, sf::Vector2f pos, int charSize, sf::Color bgColor, sf::Color textColor, std::function<void()> onClick) :
-    onClick(std::move(onClick))
+Button::Button(std::string t, sf::Vector2f size, sf::Vector2f pos, int charSize, sf::Color _bgColor, sf::Color textColor, std::function<void()> onClick) :
+    onClick(std::move(onClick)),
+    bgColor(_bgColor)
 {
 
     text.setString(t);
@@ -81,14 +82,14 @@ void Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
             }
         }
         else {
-            this->setBackColor(sf::Color(128, 128, 128));
+            this->setBackColor(bgColor);
         }
         break;
 
     case sf::Event::MouseButtonPressed:
 
         if (this->isMouseOver(window, offset)) { /// !!! have to implement for the specific button callback
-            this->setBackColor(sf::Color::Green);
+            this->setBackColor(ColorManager::success);
             this->press();
         }
         break;

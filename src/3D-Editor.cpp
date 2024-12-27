@@ -7,6 +7,7 @@
 #include "../src/feature/Scene.hpp"
 #include "../src/views/Menu.hpp"
 #include "../src/views/Home.hpp"
+#include "../src/managers/ColorManager.hpp"
 
 
 const float HEIGHT = 1080; ///window height
@@ -39,7 +40,7 @@ int main()
             }
         }
 
-        window.clear(sf::Color(26, 26, 26));
+        window.clear(ColorManager::dark);
 
         if (home->homePageView) {
             home->drawTo(window);

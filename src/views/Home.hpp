@@ -4,6 +4,7 @@
 #include "../../src/feature/Button.hpp"
 #include "../../src/managers/FileManager.hpp"
 #include "../../src/managers/FontManager.hpp"
+#include "../../src/managers/ColorManager.hpp"
 #include "../../src/feature/Scene.hpp"
 
 class Home {

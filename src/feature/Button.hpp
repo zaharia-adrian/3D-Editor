@@ -5,6 +5,8 @@
 #include <functional>
 #include <SFML/Graphics.hpp>
 #include "../../src/managers/FontManager.hpp"
+#include "../../src/managers/ColorManager.hpp"
+
 
 class Button {
 public:
@@ -28,6 +30,7 @@ private:
     std::function<void()> onClick;
     sf::RectangleShape button;
     sf::Text text;
+    sf::Color bgColor;
     bool pressed;
     bool switchedOn;
 };  
