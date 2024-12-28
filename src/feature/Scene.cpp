@@ -75,7 +75,7 @@ void Scene::updateView() {
 	frustumCulling(cViewTriangles,viewTriangles);
 	frustumCulling(cTriangles, triangles);
 
-	for (Object::vertex& vertex : vertices) vertex.v *= Mat4x4::screenTransform(width, height);
+	for (Object::vertex& vertex : vertices) vertex.v.w = 1,vertex.v *= Mat4x4::screenTransform(width, height);
 
 	///for handling vertex clicked in correct order
 	cVertices = vertices;
@@ -202,8 +202,8 @@ void Scene::drawTo(sf::RenderWindow& window) {
 		{{0.0f, 0.0f, zfar},Vec3d(0.0f, 0.0f, -1.0f)}, /// zfar plane
 		{{-a, 0.0f, znear},Vec3d(fov / a, 0.0f, 1.0f).normalize()}, /// left plane
 		{{a, 0.0f, znear},Vec3d(-fov / a, 0.0f, 1.0f).normalize()}, /// right plane
-		{{0.0f, -1.0f, znear},Vec3d(0.0f, fov, 1.0f).normalize()},///top plane
-		{{0.0f, 1.0f, znear},Vec3d(0.0f, -fov, 1.0f).normalize()}, /// bottom plane
+		{{0.0f, 1.0f, znear},Vec3d(0.0f, -fov, 1.0f).normalize()},///top plane
+		{{0.0f, -1.0f, znear},Vec3d(0.0f, fov, 1.0f).normalize()}, /// bottom plane
 	};
 
 	static auto intersectPlane = [&](int planeIdx, Vec3d& v1, Vec3d& v2) {

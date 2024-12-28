@@ -1,7 +1,7 @@
 #ifndef HOME_HPP
 #define HOME_HPP
 
-#include "../../src/feature/Button.hpp"
+#include "../../src/ui/Button.hpp"
 #include "../../src/managers/FileManager.hpp"
 #include "../../src/managers/FontManager.hpp"
 #include "../../src/managers/ColorManager.hpp"

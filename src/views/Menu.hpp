@@ -6,7 +6,8 @@
 #include "../feature/Scene.hpp"
 #include "../../src/managers/FontManager.hpp"
 #include "../../src/managers/ColorManager.hpp"
-#include "../../src/feature/Button.hpp"
+#include "../../src/ui/Button.hpp"
+#include "../../src/ui/InputBox.hpp"
 #include "../../src/views/Home.hpp"
 
 
@@ -15,7 +16,7 @@ class Menu {
 	Home *home;
 	float scrollSpeed = 20.0f;
 	const float viewWidth = 400;
-	const float viewHeight = 500;
+	const float viewHeight = 400;
 	const float boxWidth = 200;
 	const float boxHeight = 35;
 	const float boxMargin = 7;
@@ -26,9 +27,13 @@ class Menu {
 	sf::RectangleShape menuBackground, viewBackground;
 	std::vector<bool> showTriangles, showVertices, showObjectProps;
 	std::vector<Button> objectsListItems, menuButtons;
+	std::vector<InputBox> proprieties;
 
 public:
 	Menu(float, float, float);
+	void translate(Vec3d&);
+	void rotate(Vec3d&);
+	void scale(Vec3d&);
 	void updateMenu();
 	void handleEvent(sf::RenderWindow &, sf::Event);
 	void drawTo(sf::RenderWindow &);

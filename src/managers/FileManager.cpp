@@ -43,7 +43,13 @@ bool FileManager::loadSceneFromFile(std::string filePath) {
 			}
 		}
 		else if (line[0] == 'o') {
+			char name[256];
 			scene->objects.emplace_back();
+			if (!sscanf(line, "o %s", &name) == 1) {
+				std::cerr << "Invalid oject name line: " << line << std::endl;
+			}
+			scene->objects.back().name = name;
+			
 		}
 	}
 	fclose(fptr);
@@ -57,7 +63,7 @@ void FileManager::saveSceneToFile(std::string filePath) {
 	scene->filePath = "";
 
 	for (Object &o : scene->objects) {
-		fprintf(fptr, "o \n");
+		fprintf(fptr, "o %s\n", o.name.c_str());
 		for (Object::vertex &vertex : o.vertices) 
 			fprintf(fptr, "v %f %f %f\n", vertex.v.x, vertex.v.y, vertex.v.z);
 		

@@ -1,6 +1,5 @@
 #include "Button.hpp"
-#include "Scene.hpp"
-#include <SFML/Graphics.hpp>
+
 
 Button::Button() {
     pressed = false;

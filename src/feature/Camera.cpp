@@ -9,7 +9,7 @@ Camera::Camera() {
 	up = Vec3d(0.0f, 1.0f, 0.0f);
 
 	thetaX = 0;
-	thetaY = -0.06f;
+	thetaY = 0.06f;
 
 	isDragging = false;
 
@@ -71,7 +71,7 @@ void Camera::handleEvent(sf::RenderWindow& window, sf::Event event) {
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)) {
 			Vec3d U = up.crossProd(target);
 			Vec3d add = (U * delta.x + up * delta.y) * speed;
-			pos -= add; center -= add;
+			pos += add; center += add;
 			update(false);
 		}
 		else {
@@ -82,8 +82,9 @@ void Camera::handleEvent(sf::RenderWindow& window, sf::Event event) {
 		break;
 	}
 	case sf::Event::MouseWheelScrolled: {
-		pos += target * event.mouseWheelScroll.delta * speed * 10.0f;
-		update(false);
+		Vec3d add = target * event.mouseWheelScroll.delta * speed * 20.0f;
+		pos += add;
+		update(true);
 		break;
 	}
 	default:

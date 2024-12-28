@@ -30,9 +30,63 @@ Menu::Menu(float width, float height, float offsetLeft) :
         }),
             /// additional menu buttons would be added here
     };
-
+    
+    proprieties = {/// doesnt look good, has to be changed
+        ///translate
+        InputBox("X",{1470 + 30, 475},0,[&](float delta) {
+            translate(Vec3d(delta, 0, 0));
+        }),
+        InputBox("Y",{1470 + 140, 475},0,[&](float delta) {
+            translate(Vec3d(0, delta,0));
+        }),
+        InputBox("Z",{1470 + 250, 475},0,[&](float delta) {
+            translate(Vec3d(0, 0,delta));
+        }),
+        ///rotate
+        InputBox("X",{1470 + 30, 575},0,[&](float delta) {
+            rotate(Vec3d(delta, 0, 0));
+        }),
+        InputBox("Y",{1470 + 140, 575},0,[&](float delta) {
+            rotate(Vec3d(0, delta, 0));
+        }),
+        InputBox("Z",{1470 + 250, 575},0,[&](float delta) {
+            rotate(Vec3d(0, 0,delta));
+        }),
+        ///scale
+        InputBox("X",{1470 + 30, 675},0,[&](float delta) {
+            scale(Vec3d(delta, 0, 0));
+        }),
+        InputBox("Y",{1470 + 140, 675},0,[&](float delta) {
+            scale(Vec3d(0, delta, 0));
+        }),
+        InputBox("Z",{1470 + 250, 675},0,[&](float delta) {
+            scale(Vec3d(0, 0,delta));
+        }),
+    };
+    
     updateMenu();
 };
+
+void Menu::translate(Vec3d& v) { /// would be added more functionality
+    for (Object& o : scene->objects)
+        if (o.isSelected)
+            o.translate(v);
+    scene->updateView();
+}
+
+void Menu::rotate(Vec3d& v) { /// would be added more functionality
+    for (Object& o : scene->objects)
+        if (o.isSelected)
+            o.rotate(v);
+    scene->updateView();
+}
+
+void Menu::scale(Vec3d& v) { /// would be added more functionality
+    for (Object& o : scene->objects)
+        if (o.isSelected)
+            o.scale(v);
+    scene->updateView();
+}
 
 void Menu::handleEvent(sf::RenderWindow& window, sf::Event event) {
     float mouseX = sf::Mouse::getPosition(window).x;
@@ -42,8 +96,8 @@ void Menu::handleEvent(sf::RenderWindow& window, sf::Event event) {
         for (Button& b : objectsListItems)
             b.handleEvent(window, event, { posX, posY - viewOffset });
 
-    for (Button& b : menuButtons)
-        b.handleEvent(window, event);
+    for (Button& b : menuButtons) b.handleEvent(window, event);
+    for (InputBox& i : proprieties) i.handleEvent(window, event);
 
 
     switch (event.type) {
@@ -101,8 +155,11 @@ void Menu::drawTo(sf::RenderWindow& window) {
     window.draw(viewBackground);
     window.draw(clippedSprite);
 
-    for (Button& b : menuButtons)
-        b.drawTo(window);
+    for (Button& b : menuButtons) b.drawTo(window);
+
+    for (InputBox& i : proprieties) i.drawTo(window);
+
+
 }
 
 

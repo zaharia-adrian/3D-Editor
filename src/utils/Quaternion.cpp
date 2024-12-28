@@ -10,6 +10,7 @@ Quaternion::Quaternion(const Vec3d& v, float theta) {
 
 	float sinVal = sinf(theta * 0.5f);
 	float cosVal = cosf(theta * 0.5f);
+
 	x = v.x * sinVal, y = v.y * sinVal, z = v.z * sinVal, w = cosVal;
 }
 

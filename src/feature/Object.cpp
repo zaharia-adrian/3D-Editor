@@ -1,7 +1,9 @@
 #include "Object.hpp"
 
 
-Object::Object() {
+Object::Object():
+	scl(1.0f,1.0f,1.0f)
+{
 	name = "";
 	isSelected = false;
 	color = sf::Color::Red;
@@ -26,8 +28,22 @@ void Object::addVertex(float x, float y, float z, int _objectIdx, int _vertexIdx
 	vertices.emplace_back( Vec3d(x, y, z), _objectIdx, _vertexIdx);
 };
 
+void Object::translate(Vec3d delta) {
+	pos += delta;
+	updateWorldMat();
+}
+void Object::scale(Vec3d delta) {
+	scl +=delta;
+	updateWorldMat();
+}
+void Object::rotate(Vec3d delta) {
+	rot += delta;
+	updateWorldMat();
+}
+
 void Object::updateWorldMat() {
-	world = Mat4x4::translation(pos.x, pos.y, pos.z);
+	world =	Mat4x4::scale(scl.x,scl.y,scl.z);
+	world *= Mat4x4::translation(pos.x, pos.y, pos.z);
 	world *= Mat4x4::rotationX(rot.x);
 	world *= Mat4x4::rotationY(rot.y);
 	world *= Mat4x4::rotationZ(rot.z);

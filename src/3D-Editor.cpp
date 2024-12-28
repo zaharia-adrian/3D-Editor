@@ -3,11 +3,12 @@
 #include <algorithm>
 #include <SFML/Graphics.hpp>
 
-#include "../src/feature/Button.hpp"
+
 #include "../src/feature/Scene.hpp"
 #include "../src/views/Menu.hpp"
 #include "../src/views/Home.hpp"
 #include "../src/managers/ColorManager.hpp"
+
 
 
 const float HEIGHT = 1080; ///window height
@@ -22,6 +23,7 @@ int main()
 
     Home *home = Home::getInstance();
     Scene *scene = Scene::getInstance();
+
 
     while (window.isOpen())
     {
@@ -48,7 +50,6 @@ int main()
             scene->drawTo(window);
             menu.drawTo(window);
         }   
-
         window.display();
     }
 

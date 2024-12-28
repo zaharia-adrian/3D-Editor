@@ -18,6 +18,7 @@ public:
 	
 	static Mat4x4 perspectiveProjection(float, float, float, float, float);
 	static Mat4x4 screenTransform(float, float);
+	static Mat4x4 scale(float, float, float);
 	static Mat4x4 translation(float, float, float);
 	static Mat4x4 rotationX(float);
 	static Mat4x4 rotationY(float);

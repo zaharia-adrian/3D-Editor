@@ -40,7 +40,7 @@ public:
 	std::vector<triangle> triangles;
 	std::vector<vertex> vertices;
 	Mat4x4 world;
-	Vec3d pos, rot, scale;
+	Vec3d pos, rot, scl;
 	std::string name;
 	sf::Color color;
 	bool isSelected;
@@ -51,6 +51,10 @@ public:
 	Mat4x4 getWorldMat() const;
 	void addTriangle(int, int, int, int, int, sf::Color = sf::Color::Green);
 	void addVertex(float, float, float, int, int);
+
+	void translate(Vec3d);
+	void scale(Vec3d);
+	void rotate(Vec3d);
 
 	void updateWorldMat();
 
