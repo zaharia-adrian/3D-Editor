@@ -2,16 +2,21 @@
 
 
 Camera::Camera() {
-	speed = 0.05f;
-	pos = Vec3d(0.0f,0.f, -10.0f);
+	speed = 0.01f;
 	target = Vec3d(0.0f, 0.0f, 1.0f);
+	pos = Vec3d(0.0f,2.0f,-10.0f);
+	center = Vec3d();
 	up = Vec3d(0.0f, 1.0f, 0.0f);
+
 	thetaX = 0;
 	thetaY = -0.06f;
+
+	isDragging = false;
+
 	update();
 }
 
-void Camera::update() {
+void Camera::update(bool orbit) {
 
 	///updating the rotation 
 	Vec3d Yaxis(0.0f, 1.0f, 0.0f);
@@ -25,7 +30,7 @@ void Camera::update() {
 	target = View.normalize();
 	up = target.crossProd(U).normalize();
 
-	pos = target * (-pos.getLength());
+	if (orbit) pos = center + target * ( - (pos - center).getLength());
 
 	Mat4x4 rotation = Mat4x4({
 		U.x, U.y, U.z, 0.0f,
@@ -43,14 +48,47 @@ Vec3d Camera::getPos() const {
 	return pos;
 }
 
-void Camera::handleEvent(sf::Event event) {
-	if (event.key.code == sf::Keyboard::Left) thetaX += speed;
-	if (event.key.code == sf::Keyboard::Right) thetaX -= speed;
-	if (event.key.code == sf::Keyboard::Up) thetaY += speed;
-	if (event.key.code == sf::Keyboard::Down) thetaY -= speed;
-	if (event.key.code == sf::Keyboard::F) if(pos.getLength()>2.0f) pos += (target * speed);
-	if (event.key.code == sf::Keyboard::B) pos -= (target * speed);
-	update();
+void Camera::handleEvent(sf::RenderWindow& window, sf::Event event) {
+	switch (event.type){
+	case sf::Event::MouseButtonPressed:
+		if (event.mouseButton.button == sf::Mouse::Middle) {
+			isDragging = true;
+			lastMousePos = sf::Mouse::getPosition(window);
+		}
+		break;
+	case sf::Event::MouseButtonReleased:
+		if (event.mouseButton.button == sf::Mouse::Middle)
+			isDragging = false;
+		break;
+	case sf::Event::MouseMoved: {
+
+		if (!isDragging) break;
+
+		sf::Vector2i currentMousePos = sf::Mouse::getPosition(window);
+		sf::Vector2i delta = currentMousePos - lastMousePos;
+		lastMousePos = currentMousePos;
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)) {
+			Vec3d U = up.crossProd(target);
+			Vec3d add = (U * delta.x + up * delta.y) * speed;
+			pos -= add; center -= add;
+			update(false);
+		}
+		else {
+			thetaY -= delta.y * speed * 0.5f;
+			thetaX += delta.x * speed * 0.5f;
+			update(true);
+		}
+		break;
+	}
+	case sf::Event::MouseWheelScrolled: {
+		pos += target * event.mouseWheelScroll.delta * speed * 10.0f;
+		update(false);
+		break;
+	}
+	default:
+		break;
+	}
 }
 
 

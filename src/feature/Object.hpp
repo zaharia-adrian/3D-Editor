@@ -26,25 +26,34 @@ public:
 			isSelected = _isSelected;
 		}
 	};
+	struct vertex {
+		Vec3d v;
+		int objectIdx, vertexIdx;
+		bool isSelected;
+		vertex(Vec3d _v, int _objectIdx, int _vertexIdx, bool _isSelected = false) {
+			v = _v;
+			objectIdx = _objectIdx;
+			vertexIdx = _vertexIdx;
+			isSelected = _isSelected;
+		}
+	};
 	std::vector<triangle> triangles;
-	std::vector<Vec3d> vertices;
+	std::vector<vertex> vertices;
 	Mat4x4 world;
-	Vec3d rot; /// rotation angles
-	Vec3d pos; /// position in the scene 
+	Vec3d pos, rot, scale;
 	std::string name;
-	bool isSelected;
 	sf::Color color;
+	bool isSelected;
 
 	bool idxInBounds(int idx) const;
 	
 	Object();
 	Mat4x4 getWorldMat() const;
 	void addTriangle(int, int, int, int, int, sf::Color = sf::Color::Green);
-	void addVertex(const Vec3d&);
-	void addVertex(float, float, float, float = 1);
+	void addVertex(float, float, float, int, int);
 
 	void updateWorldMat();
-	
+
 };
 
 #endif

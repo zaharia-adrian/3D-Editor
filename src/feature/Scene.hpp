@@ -15,14 +15,14 @@ class Scene {
 
 	sf::Clock internalClock;
 
-
 	Scene(float = 1470, float = 1080, float = acos(-1) * 0.5f, float = 1.0f, float = 100.f);
 public:
+	
 	bool editMode;
 	std::string filePath;
 	std::vector<Object> objects;
 	std::vector<Object::triangle> viewTriangles, triangles;
-	std::vector<Vec3d> vertices;
+	std::vector<Object::vertex> vertices, cVertices;
 
 	// std::vector<int> triangleObjectIdx, triangleIdx, vertexIdx;
 
@@ -34,10 +34,14 @@ public:
 	void init(std::string, bool = false);
 	void save();
 	void updateView();
+
 	void drawTo(sf::RenderWindow&);
-	void handleEvent(sf::Event);
+	void handleEvent(sf::RenderWindow &, sf::Event);
+
 	void handleClickedTriangle(sf::Event);
+	bool handleClickedVertex(sf::Event);
 	bool triangleClicked(Object::triangle, sf::Event);
+	
 };
 
 #endif

@@ -21,7 +21,10 @@ bool FileManager::loadSceneFromFile(std::string filePath) {
 		if (line[0] == 'v'){
 			if (sscanf(line, "v %f %f %f", &x, &y, &z) == 3) {
 				if (scene->objects.empty()) scene->objects.emplace_back();
-				scene->objects.back().addVertex(x, y, z);
+				scene->objects.back().addVertex(x, y, z,
+					scene->objects.size() - 1,
+					scene->objects.back().vertices.size()
+				);
 			}
 			else {
 				std::cerr << "Invalid vertex line: " << line << std::endl;
@@ -55,8 +58,8 @@ void FileManager::saveSceneToFile(std::string filePath) {
 
 	for (Object &o : scene->objects) {
 		fprintf(fptr, "o \n");
-		for (Vec3d& v : o.vertices) 
-			fprintf(fptr, "v %f %f %f\n", v.x, v.y, v.z);
+		for (Object::vertex &vertex : o.vertices) 
+			fprintf(fptr, "v %f %f %f\n", vertex.v.x, vertex.v.y, vertex.v.z);
 		
 		for (Object::triangle& t : o.triangles) 
 			fprintf(fptr, "f %d %d %d\n", t.idx[0] + 1, t.idx[1] + 1, t.idx[2] + 1);

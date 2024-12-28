@@ -21,12 +21,9 @@ void Object::addTriangle(int idx0, int idx1, int idx2, int _objectIdx, int _tria
 		triangles.emplace_back(idx0, idx1, idx2, _objectIdx, _triangleIdx, _c);
 };
 
-void Object::addVertex(const Vec3d& v) {
-	vertices.emplace_back(v);
-};
 
-void Object::addVertex(float x, float y, float z, float w) {
-	vertices.emplace_back(x, y, z, w); 
+void Object::addVertex(float x, float y, float z, int _objectIdx, int _vertexIdx) {
+	vertices.emplace_back( Vec3d(x, y, z), _objectIdx, _vertexIdx);
 };
 
 void Object::updateWorldMat() {

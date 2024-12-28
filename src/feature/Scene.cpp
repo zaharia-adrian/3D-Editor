@@ -22,6 +22,7 @@ void Scene::init(std::string _filePath, bool newFile) {
 void Scene::save() {
 	FileManager::saveSceneToFile(filePath.c_str());
 	objects.clear();
+	camera = Camera();
 }
 
 void Scene::updateView() {
@@ -37,23 +38,23 @@ void Scene::updateView() {
 
 		Mat4x4 mat = camera.getViewMat() * objects[i].getWorldMat();
 
-		for (Vec3d& v : objects[i].vertices)
-			vertices.emplace_back(v * mat);
+		for (Object::vertex &vertex : objects[i].vertices)
+			vertices.emplace_back(vertex.v * mat, vertex.objectIdx,vertex.vertexIdx,vertex.isSelected);
 
 		for (Object::triangle& t : objects[i].triangles) {
 
-			Vec3d line1 = (vertices[t.idx[1] + count] - vertices[t.idx[0] + count]);
-			Vec3d line2 = (vertices[t.idx[2] + count] - vertices[t.idx[0] + count]);
+			Vec3d line1 = (vertices[t.idx[1] + count].v - vertices[t.idx[0] + count].v);
+			Vec3d line2 = (vertices[t.idx[2] + count].v - vertices[t.idx[0] + count].v);
 
 			Vec3d normal = line1.crossProd(line2).normalize();
 			cTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.objectIdx, t.triangleIdx, t.c));
-			if (normal.dotProd(vertices[t.idx[0] + count]) < 0)
+			if (normal.dotProd(vertices[t.idx[0] + count].v) < 0)
 				cViewTriangles.emplace_back(Object::triangle(t.idx[0] + count, t.idx[1] + count, t.idx[2] + count, t.objectIdx, t.triangleIdx, t.c));
 		}
 		
 	}
 
-	for (Vec3d& v : vertices) v *= Mat4x4::perspectiveProjection(width, height, viewAngle, zfar, znear);
+	for (Object::vertex& vertex : vertices) vertex.v *= Mat4x4::perspectiveProjection(width, height, viewAngle, zfar, znear);
 
 	static auto frustumCulling = [&](const std::vector<Object::triangle>& i, std::vector<Object::triangle>& o) {
 		for (const Object::triangle& t : i) {
@@ -64,9 +65,9 @@ void Scene::updateView() {
 					);
 			};
 
-			if (isInsideFrustum(vertices[t.idx[0]]) ||
-				isInsideFrustum(vertices[t.idx[1]]) ||
-				isInsideFrustum(vertices[t.idx[2]])
+			if (isInsideFrustum(vertices[t.idx[0]].v) ||
+				isInsideFrustum(vertices[t.idx[1]].v) ||
+				isInsideFrustum(vertices[t.idx[2]].v)
 				)
 				o.emplace_back(t);
 		}
@@ -74,35 +75,58 @@ void Scene::updateView() {
 	frustumCulling(cViewTriangles,viewTriangles);
 	frustumCulling(cTriangles, triangles);
 
-	for (Vec3d& v : vertices) v *= Mat4x4::screenTransform(width, height);
+	for (Object::vertex& vertex : vertices) vertex.v *= Mat4x4::screenTransform(width, height);
+
+	///for handling vertex clicked in correct order
+	cVertices = vertices;
+	std::sort(cVertices.begin(), cVertices.end(), [&](Object::vertex& v1, Object::vertex& v2) {
+		return v1.v.z > v2.v.z;
+	});
 
 	std::sort(viewTriangles.begin(), viewTriangles.end(), [&](Object::triangle& t1, Object::triangle& t2) {
-		float z1 = (vertices[t1.idx[0]].z + vertices[t1.idx[1]].z + vertices[t1.idx[2]].z )/3.0f;
-		float z2 = (vertices[t2.idx[0]].z + vertices[t2.idx[1]].z + vertices[t2.idx[2]].z )/3.0f;
+		float z1 = (vertices[t1.idx[0]].v.z + vertices[t1.idx[1]].v.z + vertices[t1.idx[2]].v.z )/3.0f;
+		float z2 = (vertices[t2.idx[0]].v.z + vertices[t2.idx[1]].v.z + vertices[t2.idx[2]].v.z )/3.0f;
 		return (z1 < z2);
 	});
 }
 
-void Scene::handleEvent(sf::Event event) {
+void Scene::handleEvent(sf::RenderWindow &window,sf::Event event) {
+	
+
 	switch (event.type) {
 	case sf::Event::KeyPressed:
-		camera.handleEvent(event);
-		updateView();
+		camera.handleEvent(window, event);
 		break;
 
 	case sf::Event::MouseButtonPressed:
-		this->handleClickedTriangle(event);
+		camera.handleEvent(window, event);
+		if (event.mouseButton.button == sf::Mouse::Left) {
+			if (this->handleClickedVertex(event)) break;
+			this->handleClickedTriangle(event);
+		}
+		break;
+	case sf::Event::MouseButtonReleased:
+		camera.handleEvent(window, event);
+		break;
+	case sf::Event::MouseMoved:
+		if (sf::Mouse::getPosition().x > 1470) break;
+		camera.handleEvent(window, event);
+		break;
+	case sf::Event::MouseWheelScrolled:
+		camera.handleEvent(window, event);
 		break;
 	}
+	updateView();
 };
+
 
 bool Scene::triangleClicked(Object::triangle t, sf::Event e) {
 	float mouseX = e.mouseButton.x;
 	float mouseY = e.mouseButton.y;
 
-	sf::Vector2f A(vertices[t.idx[0]].x, vertices[t.idx[0]].y);
-	sf::Vector2f B(vertices[t.idx[1]].x, vertices[t.idx[1]].y);
-	sf::Vector2f C(vertices[t.idx[2]].x, vertices[t.idx[2]].y);
+	sf::Vector2f A(vertices[t.idx[0]].v.x, vertices[t.idx[0]].v.y);
+	sf::Vector2f B(vertices[t.idx[1]].v.x, vertices[t.idx[1]].v.y);
+	sf::Vector2f C(vertices[t.idx[2]].v.x, vertices[t.idx[2]].v.y);
 	sf::Vector2f P(mouseX, mouseY);
 
 	float denominator = (B.y - C.y) * (A.x - C.x) + (C.x - B.x) * (A.y - C.y);
@@ -114,6 +138,21 @@ bool Scene::triangleClicked(Object::triangle t, sf::Event e) {
 	return (lambda1 >= 0 && lambda1 <= 1) &&
 		(lambda2 >= 0 && lambda2 <= 1) &&
 		(lambda3 >= 0 && lambda3 <= 1);
+}
+
+bool Scene::handleClickedVertex(sf::Event e) {
+	float mouseX = e.mouseButton.x;
+	float mouseY = e.mouseButton.y;
+	float radius = 7.0f;
+
+	for (Object::vertex& v : cVertices) {
+		float d = (v.v.x - mouseX) * (v.v.x - mouseX) + (v.v.y - mouseY) * (v.v.y - mouseY);
+		if (d <= radius * radius) {
+			objects[v.objectIdx].vertices[v.vertexIdx].isSelected = !objects[v.objectIdx].vertices[v.vertexIdx].isSelected;
+			return true;
+		}
+	}
+	return false;
 }
 
 void Scene::handleClickedTriangle(sf::Event e) {
@@ -224,12 +263,17 @@ void Scene::drawTo(sf::RenderWindow& window) {
 
 		for (Object::triangle& t : triangles) {
 
-			drawLine(vertices[t.idx[0]], vertices[t.idx[1]]);
-			drawLine(vertices[t.idx[0]], vertices[t.idx[2]]);
-			drawLine(vertices[t.idx[1]], vertices[t.idx[2]]);	
+			drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v);
+			drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v);
+			drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v);	
 
 			for (int i = 0;i < 3;i++) {
-				circle.setPosition({vertices[t.idx[i]].x,vertices[t.idx[i]].y });
+				circle.setPosition({vertices[t.idx[i]].v.x,vertices[t.idx[i]].v.y });
+
+				if(objects[vertices[t.idx[i]].objectIdx].vertices[vertices[t.idx[i]].vertexIdx].isSelected)
+					circle.setFillColor(sf::Color::Yellow);
+				else
+					circle.setFillColor(sf::Color(200, 200, 200, 100));
 				window.draw(circle);
 			}
 		}
@@ -240,9 +284,9 @@ void Scene::drawTo(sf::RenderWindow& window) {
 		triangle.setPointCount(3);
 		for (Object::triangle& t : viewTriangles) {
 
-			triangle.setPoint(0, { vertices[t.idx[0]].x, vertices[t.idx[0]].y });
-			triangle.setPoint(1, { vertices[t.idx[1]].x, vertices[t.idx[1]].y });
-			triangle.setPoint(2, { vertices[t.idx[2]].x, vertices[t.idx[2]].y });
+			triangle.setPoint(0, { vertices[t.idx[0]].v.x, vertices[t.idx[0]].v.y });
+			triangle.setPoint(1, { vertices[t.idx[1]].v.x, vertices[t.idx[1]].v.y });
+			triangle.setPoint(2, { vertices[t.idx[2]].v.x, vertices[t.idx[2]].v.y });
 			triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
 			window.draw(triangle);
 
@@ -250,9 +294,9 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			///std::cout << (float) clr.r << ' ' << (float) clr.g << ' ' << (float) clr.b << ' ' << (float) clr.a << '\n';
 
 			/// hardcoded for green darker outline
-			drawLine(vertices[t.idx[0]], vertices[t.idx[1]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
-			drawLine(vertices[t.idx[0]], vertices[t.idx[2]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
-			drawLine(vertices[t.idx[1]], vertices[t.idx[2]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+			drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+			drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+			drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
 
 			//if (internalClock.getElapsedTime().asSeconds() < 2)
 			//std::cout << t.triangleIdx << '\n';
@@ -260,9 +304,9 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			if (false) { // object select mode
 				if (objects[t.objectIdx].isSelected) {
 
-					drawLine(vertices[t.idx[0]], vertices[t.idx[1]]);
-					drawLine(vertices[t.idx[0]], vertices[t.idx[2]]);
-					drawLine(vertices[t.idx[1]], vertices[t.idx[2]]);
+					drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v);
+					drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v);
+					drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v);
 
 					// function that changes the triangle color's alpha
 					float elapsed = internalClock.getElapsedTime().asSeconds();
@@ -276,9 +320,9 @@ void Scene::drawTo(sf::RenderWindow& window) {
 				}
 			} else { // triangle select mode
 				if (objects[t.objectIdx].triangles[t.triangleIdx].isSelected) {
-					drawLine(vertices[t.idx[0]], vertices[t.idx[1]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
-					drawLine(vertices[t.idx[0]], vertices[t.idx[2]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
-					drawLine(vertices[t.idx[1]], vertices[t.idx[2]], objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0)/*, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(10, 10, 10)*/);
+					drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+					drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+					drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0)/*, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(10, 10, 10)*/);
 
 					// function that changes the triangle color's alpha
 					float elapsed = internalClock.getElapsedTime().asSeconds();

@@ -35,7 +35,7 @@ int main()
             if (home->homePageView) {
                 home->handleEvent(window, event);
             }else {
-                scene->handleEvent(event);
+                scene->handleEvent(window, event);
                 menu.handleEvent(window, event);
             }
         }
