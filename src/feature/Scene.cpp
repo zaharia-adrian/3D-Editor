@@ -97,8 +97,8 @@ void Scene::handleEvent(sf::RenderWindow &window,sf::Event event) {
 	case sf::Event::KeyPressed:
 		camera.handleEvent(window, event);
 		break;
-
 	case sf::Event::MouseButtonPressed:
+		if (sf::Mouse::getPosition().x > 1470) break;
 		camera.handleEvent(window, event);
 		if (event.mouseButton.button == sf::Mouse::Left) {
 			if (this->handleClickedVertex(event)) break;
@@ -113,6 +113,7 @@ void Scene::handleEvent(sf::RenderWindow &window,sf::Event event) {
 		camera.handleEvent(window, event);
 		break;
 	case sf::Event::MouseWheelScrolled:
+		if (sf::Mouse::getPosition().x > 1470) break;
 		camera.handleEvent(window, event);
 		break;
 	}
