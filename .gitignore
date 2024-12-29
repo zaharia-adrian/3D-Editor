@@ -3,9 +3,7 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-#.obj 3D Files
-!/localProjects/*.obj
-!/predefinedObjects/*.obj
+
 
 # User-specific files
 *.rsuser
@@ -101,6 +99,10 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
+
+#.obj 3D Files
+!/localProjects/*.obj
+!/predefinedObjects/*.obj
 
 # Chutzpah Test files
 _Chutzpah*
