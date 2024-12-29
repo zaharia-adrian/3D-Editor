@@ -1,6 +1,6 @@
 #include "Menu.hpp"
 
-Menu::Menu(float width, float height, float offsetLeft) :
+Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft) :
     width(width),
     height(height),
     offsetLeft(offsetLeft),
@@ -8,7 +8,7 @@ Menu::Menu(float width, float height, float offsetLeft) :
     posY((width - viewWidth) / 2.0f)
 {
     scene = Scene::getInstance();
-    home = Home::getInstance();
+    home = Home::getInstance(window);
 
     ///menu background
     menuBackground = sf::RectangleShape({ width, height });

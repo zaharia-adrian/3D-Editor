@@ -19,9 +19,9 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "3D-Editor");
 
-    Menu menu(WIDTH - SCENE_WIDTH, HEIGHT, SCENE_WIDTH);
+    Menu menu(window, WIDTH - SCENE_WIDTH, HEIGHT, SCENE_WIDTH);
 
-    Home *home = Home::getInstance();
+    Home *home = Home::getInstance(window);
     Scene *scene = Scene::getInstance();
 
 

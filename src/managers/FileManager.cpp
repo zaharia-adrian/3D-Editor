@@ -11,7 +11,7 @@ bool FileManager::loadSceneFromFile(std::string filePath) {
 	}
 
 	Scene *scene = Scene::getInstance();
-	scene->filePath = filePath;
+	
 
 	char line[256];
 	int idx0, idx1, idx2;

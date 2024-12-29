@@ -2,13 +2,16 @@
 
 
 Home *Home::instancePtr = nullptr;
-Home::Home() {
+Home::Home(sf::RenderWindow &window) {
 	homePageView = true;
 	scene = Scene::getInstance();
 	homeButtons = {
 		Button("New project", {150,40},{335,200},21, ColorManager::primary, ColorManager::light, [&]() {
-			scene->init("../../../localProjects/", true); /// + fileName (implement naming modal window)
-			homePageView = false;
+			std::string fileName;
+			if (Modal::getNameDialog(window, "Enter new project name:", fileName)) {
+				scene->init("../../../localProjects/" + fileName + ".obj", true);
+				homePageView = false;
+			}
 		}),
 		Button("Open project", {150,40},{495,200},21, ColorManager::primary, ColorManager::light, [&]() {
 			if (FileManager::loadSceneFromFileDialog()) {

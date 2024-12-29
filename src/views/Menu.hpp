@@ -30,7 +30,7 @@ class Menu {
 	std::vector<InputBox> proprieties;
 
 public:
-	Menu(float, float, float);
+	Menu(sf::RenderWindow &, float, float, float);
 	void translate(Vec3d&);
 	void rotate(Vec3d&);
 	void scale(Vec3d&);

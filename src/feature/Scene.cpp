@@ -16,6 +16,7 @@ Scene::Scene(float width, float height, float viewAngle, float znear, float zfar
 };
 
 void Scene::init(std::string _filePath, bool newFile) {
+	filePath = _filePath;
 	if (!newFile) FileManager::loadSceneFromFile(_filePath.c_str());
 	updateView();
 }

@@ -2,6 +2,7 @@
 #define HOME_HPP
 
 #include "../../src/ui/Button.hpp"
+#include "../../src/ui/Modal.hpp"
 #include "../../src/managers/FileManager.hpp"
 #include "../../src/managers/FontManager.hpp"
 #include "../../src/managers/ColorManager.hpp"
@@ -13,12 +14,12 @@ class Home {
 	Scene *scene;
 	std::vector<Button> filesListItems, homeButtons;
 
-	Home();
+	Home(sf::RenderWindow &);
 
 public:
-	static Home* getInstance() {
+	static Home* getInstance(sf::RenderWindow &window) {
 		if (instancePtr == nullptr)
-			instancePtr = new Home();
+			instancePtr = new Home(window);
 		return instancePtr;
 	}
 

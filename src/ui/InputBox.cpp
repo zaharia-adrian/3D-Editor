@@ -12,7 +12,7 @@ InputBox::InputBox(std::string _name, sf::Vector2f pos, float _value, std::funct
 	box.setFillColor(ColorManager::tertiary);
 
 	text.setFont(*FontManager::getInstance());
-	text.setFillColor(ColorManager::primary);
+	text.setFillColor(ColorManager::secondary);
 	text.setCharacterSize(21);
 	
 	setValue(_value);
