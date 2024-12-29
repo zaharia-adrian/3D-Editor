@@ -84,7 +84,7 @@ void Camera::handleEvent(sf::RenderWindow& window, sf::Event event) {
 	case sf::Event::MouseWheelScrolled: {
 		Vec3d add = target * event.mouseWheelScroll.delta * speed * 20.0f;
 		pos += add;
-		update(true);
+		update(false);
 		break;
 	}
 	default:

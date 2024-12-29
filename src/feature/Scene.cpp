@@ -86,7 +86,7 @@ void Scene::updateView() {
 	std::sort(viewTriangles.begin(), viewTriangles.end(), [&](Object::triangle& t1, Object::triangle& t2) {
 		float z1 = (vertices[t1.idx[0]].v.z + vertices[t1.idx[1]].v.z + vertices[t1.idx[2]].v.z )/3.0f;
 		float z2 = (vertices[t2.idx[0]].v.z + vertices[t2.idx[1]].v.z + vertices[t2.idx[2]].v.z )/3.0f;
-		return (z1 < z2);
+		return (z1 > z2);
 	});
 }
 

@@ -42,8 +42,8 @@ void Object::rotate(Vec3d delta) {
 }
 
 void Object::updateWorldMat() {
-	world =	Mat4x4::scale(scl.x,scl.y,scl.z);
-	world *= Mat4x4::translation(pos.x, pos.y, pos.z);
+	world = Mat4x4::translation(pos.x, pos.y, pos.z);
+	world *= Mat4x4::scale(scl.x,scl.y,scl.z);
 	world *= Mat4x4::rotationX(rot.x);
 	world *= Mat4x4::rotationY(rot.y);
 	world *= Mat4x4::rotationZ(rot.z);

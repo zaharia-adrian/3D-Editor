@@ -42,14 +42,42 @@ bool FileManager::loadSceneFromFile(std::string filePath) {
 				std::cerr << "Invalid face line: " << line << std::endl;
 			}
 		}
+		else if (line[0] == 'p' && line[1] == 'o' && line[2] == 's') {
+			if (sscanf(line, "pos %f %f %f", &x, &y, &z) == 3) {
+				if (scene->objects.empty()) scene->objects.emplace_back();
+				scene->objects.back().pos = Vec3d(x, y, z);
+			}
+			else {
+				std::cerr << "Invalid position line: " << line << std::endl;
+			}
+		}
+		else if (line[0] == 'r' && line[1] == 'o' && line[2] == 't') {
+			if (sscanf(line, "rot %f %f %f", &x, &y, &z) == 3) {
+				if (scene->objects.empty()) scene->objects.emplace_back();
+				scene->objects.back().rot = Vec3d(x, y, z);
+			}
+			else {
+				std::cerr << "Invalid rotation line: " << line << std::endl;
+			}
+		}
+		else if (line[0] == 's' && line[1] == 'c' && line[2] == 'l') {
+			if (sscanf(line, "scl %f %f %f", &x, &y, &z) == 3) {
+				if (scene->objects.empty()) scene->objects.emplace_back();
+				scene->objects.back().scl = Vec3d(x, y, z);
+			}
+			else {
+				std::cerr << "Invalid scale line: " << line << std::endl;
+			}
+		}
 		else if (line[0] == 'o') {
 			char name[256];
 			scene->objects.emplace_back();
-			if (!sscanf(line, "o %s", &name) == 1) {
+			if (sscanf(line, "o %s", &name) == 1) {
+				scene->objects.back().name = name;
+			}
+			else {
 				std::cerr << "Invalid oject name line: " << line << std::endl;
 			}
-			scene->objects.back().name = name;
-			
 		}
 	}
 	fclose(fptr);
@@ -64,6 +92,9 @@ void FileManager::saveSceneToFile(std::string filePath) {
 
 	for (Object &o : scene->objects) {
 		fprintf(fptr, "o %s\n", o.name.c_str());
+		fprintf(fptr, "pos %f %f %f\n", o.pos.x, o.pos.y, o.pos.z);
+		fprintf(fptr, "rot %f %f %f\n", o.rot.x, o.rot.y, o.rot.z);
+		fprintf(fptr, "scl %f %f %f\n", o.scl.x, o.scl.y, o.scl.z);
 		for (Object::vertex &vertex : o.vertices) 
 			fprintf(fptr, "v %f %f %f\n", vertex.v.x, vertex.v.y, vertex.v.z);
 		

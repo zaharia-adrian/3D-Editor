@@ -28,7 +28,7 @@ Menu::Menu(float width, float height, float offsetLeft) :
             scene->save();
             home->homePageView = true;
         }),
-            /// additional menu buttons would be added here
+        /// additional menu buttons would be added here
     };
     
     proprieties = {/// doesnt look good, has to be changed
@@ -36,30 +36,30 @@ Menu::Menu(float width, float height, float offsetLeft) :
         InputBox("X",{1470 + 30, 475},0,[&](float delta) {
             translate(Vec3d(delta, 0, 0));
         }),
-        InputBox("Y",{1470 + 140, 475},0,[&](float delta) {
+        InputBox("Y",{1470 + 130, 475},0,[&](float delta) {
             translate(Vec3d(0, delta,0));
         }),
-        InputBox("Z",{1470 + 250, 475},0,[&](float delta) {
+        InputBox("Z",{1470 + 230, 475},0,[&](float delta) {
             translate(Vec3d(0, 0,delta));
         }),
         ///rotate
-        InputBox("X",{1470 + 30, 575},0,[&](float delta) {
+        InputBox("X",{1470 + 30, 545},0,[&](float delta) {
             rotate(Vec3d(delta, 0, 0));
         }),
-        InputBox("Y",{1470 + 140, 575},0,[&](float delta) {
+        InputBox("Y",{1470 + 130, 545},0,[&](float delta) {
             rotate(Vec3d(0, delta, 0));
         }),
-        InputBox("Z",{1470 + 250, 575},0,[&](float delta) {
+        InputBox("Z",{1470 + 230, 545},0,[&](float delta) {
             rotate(Vec3d(0, 0,delta));
         }),
         ///scale
-        InputBox("X",{1470 + 30, 675},0,[&](float delta) {
+        InputBox("X",{1470 + 30, 615},0,[&](float delta) {
             scale(Vec3d(delta, 0, 0));
         }),
-        InputBox("Y",{1470 + 140, 675},0,[&](float delta) {
+        InputBox("Y",{1470 + 130, 615},0,[&](float delta) {
             scale(Vec3d(0, delta, 0));
         }),
-        InputBox("Z",{1470 + 250, 675},0,[&](float delta) {
+        InputBox("Z",{1470 + 230, 615},0,[&](float delta) {
             scale(Vec3d(0, 0,delta));
         }),
     };
@@ -157,9 +157,24 @@ void Menu::drawTo(sf::RenderWindow& window) {
 
     for (Button& b : menuButtons) b.drawTo(window);
 
+    sf::Text txt;
+    txt.setFont(*FontManager::getInstance());
+    txt.setCharacterSize(18);
+    txt.setFillColor(ColorManager::dark);
+
+    txt.setString("Translate");
+    txt.setPosition({1470 + 30, 450});
+    window.draw(txt);
+
+    txt.setString("Rotate");
+    txt.setPosition({ 1470 + 30, 520 });
+    window.draw(txt);
+
+    txt.setString("Scale");
+    txt.setPosition({ 1470 + 30, 590 });
+    window.draw(txt);
+
     for (InputBox& i : proprieties) i.drawTo(window);
-
-
 }
 
 
