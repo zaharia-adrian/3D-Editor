@@ -5,6 +5,7 @@
 bool FileManager::loadSceneFromFile(std::string filePath) {
 
 	FILE *fptr = fopen(filePath.c_str(), "r");
+
 	if (fptr == nullptr) {
 		std::cerr << "File not found!";
 		return false;
@@ -88,7 +89,6 @@ void FileManager::saveSceneToFile(std::string filePath) {
 	FILE* fptr = fopen(filePath.c_str(), "w");
 
 	Scene* scene = Scene::getInstance();
-	scene->filePath = "";
 
 	for (Object &o : scene->objects) {
 		fprintf(fptr, "o %s\n", o.name.c_str());
@@ -105,6 +105,7 @@ void FileManager::saveSceneToFile(std::string filePath) {
 	fclose(fptr);
 }
 
+
 std::vector<std::string> FileManager::getFilesList() {
 	std::string folderPath = "../../../localProjects";
 
@@ -114,8 +115,7 @@ std::vector<std::string> FileManager::getFilesList() {
 	}
 	return filesList;
 }
-
-bool FileManager::loadSceneFromFileDialog() {
+bool FileManager::selectFileDialog(std::string &filePath) {
 
 	///https://cplusplus.com/forum/windows/169960/
 
@@ -134,8 +134,20 @@ bool FileManager::loadSceneFromFileDialog() {
 
 	
 	if (GetOpenFileName(&ofn)) { // Open the dialog
-		return loadSceneFromFile(fileName);
+		filePath = fileName;
+		return true;
 	}
 	///No file selected or dialog canceled.
 	return false;
 }
+
+std::vector<std::string> FileManager::getPredefinedObjectsList() {
+	std::string folderPath = "../../../predefinedObjects";
+
+	std::vector<std::string> filesList;
+	for (const auto& entry : std::filesystem::directory_iterator(folderPath)) {
+		filesList.emplace_back(entry.path().filename().string());
+	}
+	return filesList;
+};
+

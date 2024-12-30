@@ -15,9 +15,9 @@ class Menu {
 	Scene *scene;
 	Home *home;
 	float scrollSpeed = 20.0f;
-	const float viewWidth = 400;
+	const float viewWidth = 350;
 	const float viewHeight = 400;
-	const float boxWidth = 200;
+	const float boxWidth = 175;
 	const float boxHeight = 35;
 	const float boxMargin = 7;
 	float viewOffset = 0;
@@ -34,7 +34,7 @@ public:
 	void translate(Vec3d&);
 	void rotate(Vec3d&);
 	void scale(Vec3d&);
-	void updateMenu();
+	void updateMenu(sf::RenderWindow&);
 	void handleEvent(sf::RenderWindow &, sf::Event);
 	void drawTo(sf::RenderWindow &);
 };

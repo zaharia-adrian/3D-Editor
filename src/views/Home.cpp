@@ -11,12 +11,16 @@ Home::Home(sf::RenderWindow &window) {
 			if (Modal::getNameDialog(window, "Enter new project name:", fileName)) {
 				scene->init("../../../localProjects/" + fileName + ".obj", true);
 				homePageView = false;
+
 			}
 		}),
 		Button("Open project", {150,40},{495,200},21, ColorManager::primary, ColorManager::light, [&]() {
-			if (FileManager::loadSceneFromFileDialog()) {
-				scene->updateView();
-				homePageView = false;
+			std::string filePath;
+			if (FileManager::selectFileDialog(filePath)) {
+				if (FileManager::loadSceneFromFile(filePath)) {
+					scene->updateView();
+					homePageView = false;
+				}
 			}
 		}),
 	};

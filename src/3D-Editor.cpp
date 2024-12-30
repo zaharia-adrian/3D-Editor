@@ -13,7 +13,7 @@
 
 const float HEIGHT = 1080; ///window height
 const float WIDTH = 1920; ///window width
-const float SCENE_WIDTH = 1470;
+const float SCENE_WIDTH = 1520;
 
 int main()
 {
@@ -30,10 +30,23 @@ int main()
         sf::Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed ||
-                event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+            switch (event.type) {
+            case sf::Event::Closed:
                 window.close();
-
+                break;
+            case sf::Event::KeyPressed:
+                if(event.key.code == sf::Keyboard::Escape)
+                window.close();
+                break;
+            case sf::Event::Resized: {
+                float width = static_cast<float>(event.size.width);
+                float height = static_cast<float>(event.size.height);
+                window.setView(sf::View(sf::FloatRect(0, 0, width, height)));
+                break;
+            }
+            default:
+                break;
+            }
             if (home->homePageView) {
                 home->handleEvent(window, event);
             }else {

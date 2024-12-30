@@ -124,3 +124,7 @@ bool Button::isMouseOver(sf::RenderWindow& window, sf::Vector2f offset) {
 
     return false;
 }
+
+void Button::setCallback(std::function<void()> callback) {
+    onClick = callback;
+}

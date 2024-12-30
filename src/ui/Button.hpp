@@ -27,6 +27,8 @@ public:
     bool isPressed();
     bool isSwitchedOn();
     bool isMouseOver(sf::RenderWindow&, sf::Vector2f = sf::Vector2f());
+
+    void setCallback(std::function<void()> = [&]() {});
 private:
     std::function<void()> onClick;
     sf::RectangleShape button;

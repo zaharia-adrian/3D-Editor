@@ -12,7 +12,6 @@ Scene::Scene(float width, float height, float viewAngle, float znear, float zfar
 	editMode(false)
 {
 	a = width / height;
-
 };
 
 void Scene::init(std::string _filePath, bool newFile) {
@@ -20,10 +19,24 @@ void Scene::init(std::string _filePath, bool newFile) {
 	if (!newFile) FileManager::loadSceneFromFile(_filePath.c_str());
 	updateView();
 }
-void Scene::save() {
-	FileManager::saveSceneToFile(filePath.c_str());
+void Scene::saveAndClose(sf::RenderWindow & window) {
+	if (Modal::getOkDialog(window, "Do you want to save the changes?")) {
+		FileManager::saveSceneToFile(filePath.c_str());
+	}
+	filePath = "";
 	objects.clear();
 	camera = Camera();
+}
+
+void Scene::deleteObject(int idx) {
+	if (idx < 0 || idx > objects.size() - 1) return;
+	for (int i = idx; i < objects.size() - 1; i++) {
+		objects[i] = objects[i + 1];
+		for (Object::vertex& v : objects[i].vertices) v.objectIdx--;
+		for (Object::triangle& t : objects[i].triangles) t.objectIdx--;
+	}
+	objects.pop_back();
+	updateView();
 }
 
 void Scene::updateView() {

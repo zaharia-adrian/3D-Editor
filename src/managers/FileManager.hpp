@@ -13,8 +13,9 @@ class FileManager {
 public:
 	static bool loadSceneFromFile(std::string); 
 	static void saveSceneToFile(std::string);  
-	static bool loadSceneFromFileDialog();
+	static bool selectFileDialog(std::string &);
 	static std::vector<std::string> getFilesList(); /// localProjects files list
+	static std::vector<std::string> getPredefinedObjectsList();
 };
 
 #endif
