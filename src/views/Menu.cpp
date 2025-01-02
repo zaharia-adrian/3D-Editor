@@ -40,7 +40,7 @@ Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft
         /// additional menu buttons would be added here
     };
     
-    proprieties = {/// doesnt look good, has to be changed
+    objectProprieties = {/// doesnt look good, has to be changed
         ///translate
         InputBox("X",{1520 + 30, 505},0,[&](float delta) {
             translate(Vec3d(delta, 0, 0));
@@ -72,14 +72,32 @@ Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft
             scale(Vec3d(0, 0,delta));
         }),
     };
+    vertexProprieties = {/// doesnt look good, has to be changed
+        ///translate
+        InputBox("X",{1520 + 30, 505},0,[&](float delta) {
+            translate(Vec3d(delta, 0, 0));
+        }),
+        InputBox("Y",{1520 + 130, 505},0,[&](float delta) {
+            translate(Vec3d(0, delta,0));
+        }),
+        InputBox("Z",{1520 + 230, 505},0,[&](float delta) {
+            translate(Vec3d(0, 0,delta));
+        })
+    };
     
     updateMenu(window);
 };
 
 void Menu::translate(Vec3d& v) { /// would be added more functionality
-    for (Object& o : scene->objects)
-        if (o.isSelected)
-            o.translate(v);
+    if (scene->editMode) {
+        for (Object& o : scene->objects)
+            o.translateVertices(v);
+    }
+    else {
+        for (Object& o : scene->objects)
+            if (o.isSelected)
+                o.translate(v);
+    }
     scene->updateView();
 }
 
@@ -106,7 +124,11 @@ void Menu::handleEvent(sf::RenderWindow& window, sf::Event event) {
             b.handleEvent(window, event, { posX, posY - viewOffset });
 
     for (Button& b : menuButtons) b.handleEvent(window, event);
-    for (InputBox& i : proprieties) i.handleEvent(window, event);
+
+    if(scene->editMode)
+        for (InputBox& i : vertexProprieties) i.handleEvent(window, event);
+    else
+        for (InputBox& i : objectProprieties) i.handleEvent(window, event);
 
 
     switch (event.type) {
@@ -190,15 +212,20 @@ void Menu::drawTo(sf::RenderWindow& window) {
     txt.setPosition({1520 + 30, 480});
     window.draw(txt);
 
-    txt.setString("Rotate");
-    txt.setPosition({ 1520 + 30, 550 });
-    window.draw(txt);
+    if (!scene->editMode) {
+        txt.setString("Rotate");
+        txt.setPosition({ 1520 + 30, 550 });
+        window.draw(txt);
 
-    txt.setString("Scale");
-    txt.setPosition({ 1520 + 30, 620 });
-    window.draw(txt);
+        txt.setString("Scale");
+        txt.setPosition({ 1520 + 30, 620 });
+        window.draw(txt);
+    }
 
-    for (InputBox& i : proprieties) i.drawTo(window);
+    if (scene->editMode)
+        for (InputBox& i : vertexProprieties) i.drawTo(window);
+    else
+        for (InputBox& i : objectProprieties) i.drawTo(window);
 }
 
 

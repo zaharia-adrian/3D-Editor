@@ -28,6 +28,12 @@ void Object::addVertex(float x, float y, float z, int _objectIdx, int _vertexIdx
 	vertices.emplace_back( Vec3d(x, y, z), _objectIdx, _vertexIdx);
 };
 
+void Object::translateVertices(Vec3d delta) {
+	for (vertex& vertex : vertices)
+		if (vertex.isSelected)
+			vertex.v += delta;
+}
+
 void Object::translate(Vec3d delta) {
 	pos += delta;
 	updateWorldMat();

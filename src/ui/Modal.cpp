@@ -148,7 +148,7 @@ bool Modal::addNewObjectDialog(sf::RenderWindow &window, std::string _title) {
 	bool open = true, ok = true;
 
 	Button cancelBtn("Cancel", { 100,40 }, { 1230,730 }, 21, ColorManager::primary, ColorManager::light, [&]() { open = false; ok = false;});
-	Button newObject("New empty object", { 200,40 }, { 1130,300 }, 21, ColorManager::tertiary, ColorManager::dark, [&]() {
+	Button newObject("New empty object", { 200,40 }, { 1130,330 }, 21, ColorManager::secondary, ColorManager::dark, [&]() {
 		std::string objectName;
 		if (Modal::getNameDialog(window, "Enter new object name:", objectName)) {
 			Scene* scene = Scene::getInstance();
@@ -166,14 +166,14 @@ bool Modal::addNewObjectDialog(sf::RenderWindow &window, std::string _title) {
 	title.setString(_title);
 	title.setFont(*FontManager::getInstance());
 	title.setCharacterSize(24);
-	title.setPosition({ 600,300 });
+	title.setPosition({ 600,330 });
 	title.setColor(ColorManager::dark);
 
 	std::string folderPath = "../../../predefinedObjects";
 	sf::Vector2f size(200, 35);
 	std::vector<Button> predefinedObjectsList;
 	for (std::string& fileName : FileManager::getPredefinedObjectsList()) {
-		sf::Vector2f pos(600, 350 + predefinedObjectsList.size() * (size.y + 5));
+		sf::Vector2f pos(600, 380 + predefinedObjectsList.size() * (size.y + 5));
 		predefinedObjectsList.emplace_back(fileName.substr(0, fileName.size() - 4), size, pos, 24, ColorManager::light, ColorManager::primary, [fileName, folderPath, &open]() {
 			FileManager::loadSceneFromFile(folderPath + '/' + fileName);
 			Scene::getInstance()->updateView();

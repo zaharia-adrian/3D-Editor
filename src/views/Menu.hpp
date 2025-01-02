@@ -27,7 +27,7 @@ class Menu {
 	sf::RectangleShape menuBackground, viewBackground;
 	std::vector<bool> showTriangles, showVertices, showObjectProps;
 	std::vector<Button> objectsListItems, menuButtons;
-	std::vector<InputBox> proprieties;
+	std::vector<InputBox> objectProprieties, vertexProprieties;
 
 public:
 	Menu(sf::RenderWindow &, float, float, float);

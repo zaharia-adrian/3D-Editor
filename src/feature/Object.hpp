@@ -52,6 +52,7 @@ public:
 	void addTriangle(int, int, int, int, int, sf::Color = sf::Color::Green);
 	void addVertex(float, float, float, int, int);
 
+	void translateVertices(Vec3d);
 	void translate(Vec3d);
 	void scale(Vec3d);
 	void rotate(Vec3d);

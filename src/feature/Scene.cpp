@@ -112,7 +112,7 @@ void Scene::handleEvent(sf::RenderWindow &window,sf::Event event) {
 		if (sf::Mouse::getPosition().x > 1470) break;
 		camera.handleEvent(window, event);
 		if (event.mouseButton.button == sf::Mouse::Left) {
-			if (this->handleClickedVertex(event)) break;
+			if (editMode && this->handleClickedVertex(event))  break;
 			this->handleClickedTriangle(event);
 		}
 		break;
