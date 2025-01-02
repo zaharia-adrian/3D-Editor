@@ -39,8 +39,8 @@ int main()
                 window.close();
                 break;
             case sf::Event::Resized: {
-                float width = static_cast<float>(event.size.width);
-                float height = static_cast<float>(event.size.height);
+                float width = static_cast<float>(window.getSize().x);
+                float height = static_cast<float>(window.getSize().y);
                 window.setView(sf::View(sf::FloatRect(0, 0, width, height)));
                 break;
             }

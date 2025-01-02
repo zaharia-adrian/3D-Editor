@@ -20,9 +20,6 @@ void Scene::init(std::string _filePath, bool newFile) {
 	updateView();
 }
 void Scene::saveAndClose(sf::RenderWindow & window) {
-	if (Modal::getOkDialog(window, "Do you want to save the changes?")) {
-		FileManager::saveSceneToFile(filePath.c_str());
-	}
 	filePath = "";
 	objects.clear();
 	camera = Camera();

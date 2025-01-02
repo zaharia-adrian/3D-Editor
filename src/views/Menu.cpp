@@ -22,7 +22,11 @@ Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft
 
     menuButtons = {
         Button("Close", { 150, 40 }, { 1345, 25 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
+            if (Modal::getOkDialog(window, "Do you want to save the changes?")) {
+                FileManager::saveSceneToFile(scene->filePath.c_str());
+            }
             scene->saveAndClose(window);
+            home->update();
             home->homePageView = true;
         }),
         Button("Edit mode", { 150, 40 }, { 1345, 75 }, 20, ColorManager::secondary, ColorManager::light, [&]() {

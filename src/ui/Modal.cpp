@@ -60,8 +60,8 @@ bool Modal::getNameDialog(sf::RenderWindow& window, std::string _title, std::str
 				}
 
 			case sf::Event::Resized: {
-				float width = static_cast<float>(event.size.width);
-				float height = static_cast<float>(event.size.height);
+				float width = static_cast<float>(window.getSize().x);
+				float height = static_cast<float>(window.getSize().y);
 				window.setView(sf::View(sf::FloatRect(0, 0, width, height)));
 				break;
 			}
@@ -73,6 +73,7 @@ bool Modal::getNameDialog(sf::RenderWindow& window, std::string _title, std::str
 			inputTxt.setString(name);
         else
 			inputTxt.setString(name + "|");
+	
 
 		window.clear(ColorManager::dark);
 
@@ -120,8 +121,8 @@ bool Modal::getOkDialog(sf::RenderWindow& window, std::string _title) {
 				if (event.key.code == sf::Keyboard::Enter) open = false;
 				break;
 			case sf::Event::Resized: {
-				float width = static_cast<float>(event.size.width);
-				float height = static_cast<float>(event.size.height);
+				float width = static_cast<float>(window.getSize().x);
+				float height = static_cast<float>(window.getSize().y);
 				window.setView(sf::View(sf::FloatRect(0, 0, width, height)));
 				break;
 			}
@@ -192,8 +193,8 @@ bool Modal::addNewObjectDialog(sf::RenderWindow &window, std::string _title) {
 				if (event.key.code == sf::Keyboard::Enter) open = false;
 				break;
 			case sf::Event::Resized: {
-				float width = static_cast<float>(event.size.width);
-				float height = static_cast<float>(event.size.height);
+				float width = static_cast<float>(window.getSize().x);
+				float height = static_cast<float>(window.getSize().y);
 				window.setView(sf::View(sf::FloatRect(0, 0, width, height)));
 				break;
 			}

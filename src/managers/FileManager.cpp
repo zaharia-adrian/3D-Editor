@@ -47,6 +47,7 @@ bool FileManager::loadSceneFromFile(std::string filePath) {
 			if (sscanf(line, "pos %f %f %f", &x, &y, &z) == 3) {
 				if (scene->objects.empty()) scene->objects.emplace_back();
 				scene->objects.back().pos = Vec3d(x, y, z);
+				scene->objects.back().updateWorldMat();
 			}
 			else {
 				std::cerr << "Invalid position line: " << line << std::endl;
@@ -56,6 +57,7 @@ bool FileManager::loadSceneFromFile(std::string filePath) {
 			if (sscanf(line, "rot %f %f %f", &x, &y, &z) == 3) {
 				if (scene->objects.empty()) scene->objects.emplace_back();
 				scene->objects.back().rot = Vec3d(x, y, z);
+				scene->objects.back().updateWorldMat();
 			}
 			else {
 				std::cerr << "Invalid rotation line: " << line << std::endl;
@@ -65,6 +67,7 @@ bool FileManager::loadSceneFromFile(std::string filePath) {
 			if (sscanf(line, "scl %f %f %f", &x, &y, &z) == 3) {
 				if (scene->objects.empty()) scene->objects.emplace_back();
 				scene->objects.back().scl = Vec3d(x, y, z);
+				scene->objects.back().updateWorldMat();
 			}
 			else {
 				std::cerr << "Invalid scale line: " << line << std::endl;
