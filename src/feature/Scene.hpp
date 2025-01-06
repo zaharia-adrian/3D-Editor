@@ -19,7 +19,7 @@ class Scene {
 	Scene(float = 1520, float = 1080, float = acos(-1) * 0.33f, float = 1.0f, float = 1000.f);
 public:
 	
-	bool editMode;
+	bool editMode, selectMode;
 	std::string filePath;
 	std::vector<Object> objects;
 	std::vector<Object::triangle> viewTriangles, triangles;

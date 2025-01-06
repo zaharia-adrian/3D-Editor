@@ -32,6 +32,9 @@ Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft
         Button("Edit mode", { 150, 40 }, { 1345, 75 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
             scene->editMode = !scene->editMode;
         }),
+        Button("Select mode", { 150, 40 }, { 1345, 125 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
+            scene->selectMode = !scene->selectMode;
+        }),
         Button("Add object", { 120, 30 }, { 1775, 15 }, 18, ColorManager::primary, ColorManager::light, [&]() {
             if (Modal::addNewObjectDialog(window,"Add new object:")) {
                 updateMenu(window);
