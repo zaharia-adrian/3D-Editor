@@ -19,11 +19,12 @@ class Scene {
 	Scene(float = 1520, float = 1080, float = acos(-1) * 0.33f, float = 1.0f, float = 1000.f);
 public:
 	
-	bool editMode, selectMode;
+	bool editMode, selectMode, paintMode;
 	std::string filePath;
 	std::vector<Object> objects;
 	std::vector<Object::triangle> viewTriangles, triangles;
 	std::vector<Object::vertex> vertices, cVertices;
+	sf::Color menuPaintColor;
 
 	// std::vector<int> triangleObjectIdx, triangleIdx, vertexIdx;
 
@@ -45,7 +46,6 @@ public:
 	void handleClickedTriangle(sf::Event);
 	bool handleClickedVertex(sf::Event);
 	bool triangleClicked(Object::triangle, sf::Event);
-	
 };
 
 #endif

@@ -1,11 +1,12 @@
 #include "Menu.hpp"
 
-Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft) :
+Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft) :
     width(width),
     height(height),
     offsetLeft(offsetLeft),
     posX(offsetLeft + (width - viewWidth) / 2.0f),
-    posY((width - viewWidth) / 2.0f + 30)
+    posY((width - viewWidth) / 2.0f + 30),
+    paintColor(sf::Color::White)
 {
     scene = Scene::getInstance();
     home = Home::getInstance(window);
@@ -31,9 +32,19 @@ Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft
         }),
         Button("Edit mode", { 150, 40 }, { 1345, 75 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
             scene->editMode = !scene->editMode;
+            if (scene->editMode) {
+                scene->paintMode = false;
+                window.setMouseCursorVisible(true);
+            }
         }),
         Button("Select mode", { 150, 40 }, { 1345, 125 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
             scene->selectMode = !scene->selectMode;
+        }),
+        Button("Paint mode", { 150, 40 }, { 1345, 175 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
+            scene->paintMode = !scene->paintMode;
+            scene->editMode = false;
+            if (scene->paintMode) window.setMouseCursorVisible(false);
+            else window.setMouseCursorVisible(true);
         }),
         Button("Add object", { 120, 30 }, { 1775, 15 }, 18, ColorManager::primary, ColorManager::light, [&]() {
             if (Modal::addNewObjectDialog(window,"Add new object:")) {
@@ -42,7 +53,7 @@ Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft
         }),
         /// additional menu buttons would be added here
     };
-    
+
     objectProprieties = {/// doesnt look good, has to be changed
         ///translate
         InputBox("X",{1520 + 30, 505},0,[&](float delta) {
@@ -54,26 +65,26 @@ Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft
         InputBox("Z",{1520 + 230, 505},0,[&](float delta) {
             translate(Vec3d(0, 0,delta));
         }),
-        ///rotate
-        InputBox("X",{1520 + 30, 575},0,[&](float delta) {
-            rotate(Vec3d(delta, 0, 0));
-        }),
-        InputBox("Y",{1520 + 130, 575},0,[&](float delta) {
-            rotate(Vec3d(0, delta, 0));
-        }),
-        InputBox("Z",{1520 + 230, 575},0,[&](float delta) {
-            rotate(Vec3d(0, 0,delta));
-        }),
-        ///scale
-        InputBox("X",{1520 + 30, 645},0,[&](float delta) {
-            scale(Vec3d(delta, 0, 0));
-        }),
-        InputBox("Y",{1520 + 130, 645},0,[&](float delta) {
-            scale(Vec3d(0, delta, 0));
-        }),
-        InputBox("Z",{1520 + 230, 645},0,[&](float delta) {
-            scale(Vec3d(0, 0,delta));
-        }),
+            ///rotate
+            InputBox("X",{1520 + 30, 575},0,[&](float delta) {
+                rotate(Vec3d(delta, 0, 0));
+            }),
+            InputBox("Y",{1520 + 130, 575},0,[&](float delta) {
+                rotate(Vec3d(0, delta, 0));
+            }),
+            InputBox("Z",{1520 + 230, 575},0,[&](float delta) {
+                rotate(Vec3d(0, 0,delta));
+            }),
+            ///scale
+            InputBox("X",{1520 + 30, 645},0,[&](float delta) {
+                scale(Vec3d(delta, 0, 0));
+            }),
+            InputBox("Y",{1520 + 130, 645},0,[&](float delta) {
+                scale(Vec3d(0, delta, 0));
+            }),
+            InputBox("Z",{1520 + 230, 645},0,[&](float delta) {
+                scale(Vec3d(0, 0,delta));
+            }),
     };
     vertexProprieties = {/// doesnt look good, has to be changed
         ///translate
@@ -86,6 +97,35 @@ Menu::Menu(sf::RenderWindow &window, float width, float height, float offsetLeft
         InputBox("Z",{1520 + 230, 505},0,[&](float delta) {
             translate(Vec3d(0, 0,delta));
         })
+    };
+    menuColors = {
+        Button("Red", { 90, 35 }, { 1520 + 30, 505 }, 20, sf::Color::Red, ColorManager::dark, [&]() {
+            paintColor = sf::Color::Red;
+        }, true),
+        Button("Green", { 90, 35 }, { 1520 + 130, 505 }, 20, sf::Color::Green, ColorManager::dark, [&]() {
+            paintColor = sf::Color::Green;
+        }, true),
+        Button("Blue", { 90, 35 }, { 1520 + 230, 505 }, 20, sf::Color::Blue, ColorManager::dark, [&]() {
+            paintColor = sf::Color::Blue;
+        }, true),
+        Button("Magenta", { 90, 35 }, { 1520 + 30, 550 }, 20, sf::Color::Magenta, ColorManager::dark, [&]() {
+            paintColor = sf::Color::Magenta;
+        }, true),
+        Button("Yellow", { 90, 35 }, { 1520 + 130, 550 }, 20, sf::Color::Yellow, ColorManager::dark, [&]() {
+            paintColor = sf::Color::Yellow;
+        }, true),
+        Button("Cyan", { 90, 35 }, { 1520 + 230, 550 }, 20, sf::Color::Cyan, ColorManager::dark, [&]() {
+            paintColor = sf::Color::Cyan;
+        }, true),
+        Button("White", { 90, 35 }, { 1520 + 30, 595 }, 20, sf::Color::White, ColorManager::dark, [&]() {
+            paintColor = sf::Color::White;
+        }, true),
+        Button("Gray", { 90, 35 }, { 1520 + 130, 595 }, 20, sf::Color(128, 128, 128), ColorManager::dark, [&]() {
+            paintColor = sf::Color(128, 128, 128);
+        }, true),
+        Button("Black", { 90, 35 }, { 1520 + 230, 595 }, 20, sf::Color::Black, ColorManager::dark, [&]() {
+            paintColor = sf::Color::Black;
+        }, true)
     };
     
     updateMenu(window);
@@ -133,6 +173,8 @@ void Menu::handleEvent(sf::RenderWindow& window, sf::Event event) {
     else
         for (InputBox& i : objectProprieties) i.handleEvent(window, event);
 
+    if (scene->paintMode)
+        for (Button& b : menuColors) b.handleEvent(window, event);
 
     switch (event.type) {
     case sf::Event::MouseWheelScrolled:
@@ -206,16 +248,25 @@ void Menu::drawTo(sf::RenderWindow& window) {
 
     for (Button& b : menuButtons) b.drawTo(window);
 
+    scene->menuPaintColor = paintColor;
+
     sf::Text txt;
     txt.setFont(*FontManager::getInstance());
     txt.setCharacterSize(18);
     txt.setFillColor(ColorManager::dark);
 
-    txt.setString("Translate");
-    txt.setPosition({1520 + 30, 480});
-    window.draw(txt);
+    if (!scene->paintMode) {
+        txt.setString("Translate");
+        txt.setPosition({ 1520 + 30, 480 });
+        window.draw(txt);
+    }
+    else {
+        txt.setString("Color Palette");
+        txt.setPosition({ 1520 + 30, 480 });
+        window.draw(txt);
+    }
 
-    if (!scene->editMode) {
+    if (!scene->editMode && !scene->paintMode) {
         txt.setString("Rotate");
         txt.setPosition({ 1520 + 30, 550 });
         window.draw(txt);
@@ -224,11 +275,16 @@ void Menu::drawTo(sf::RenderWindow& window) {
         txt.setPosition({ 1520 + 30, 620 });
         window.draw(txt);
     }
-
-    if (scene->editMode)
-        for (InputBox& i : vertexProprieties) i.drawTo(window);
-    else
-        for (InputBox& i : objectProprieties) i.drawTo(window);
+    
+    if (!scene->paintMode) {
+        if (scene->editMode)
+            for (InputBox& i : vertexProprieties) i.drawTo(window);
+        else
+            for (InputBox& i : objectProprieties) i.drawTo(window);
+    }
+    else {
+        for (Button& b : menuColors) b.drawTo(window);
+    }
 }
 
 

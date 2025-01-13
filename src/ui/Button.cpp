@@ -4,9 +4,10 @@
 Button::Button() {
     pressed = false;
     switchedOn = false;
+    isColorBox = false;
 }
 
-Button::Button(std::string t, sf::Vector2f size, sf::Vector2f pos, int charSize, sf::Color _bgColor, sf::Color textColor, std::function<void()> onClick) :
+Button::Button(std::string t, sf::Vector2f size, sf::Vector2f pos, int charSize, sf::Color _bgColor, sf::Color textColor, std::function<void()> onClick, bool colorBox) :
     onClick(std::move(onClick)),
     bgColor(_bgColor)
 {
@@ -24,6 +25,7 @@ Button::Button(std::string t, sf::Vector2f size, sf::Vector2f pos, int charSize,
 
     pressed = false;
     switchedOn = false;
+    isColorBox = colorBox;
 }
 
 
@@ -77,7 +79,7 @@ void Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
     case sf::Event::MouseMoved:
         if (this->isMouseOver(window, offset)) {
             if (!this->isPressed()) {
-                this->setBackColor(sf::Color::Blue);
+                if (!isColorBox) this->setBackColor(sf::Color::Blue);
             }
         }
         else {
@@ -88,7 +90,7 @@ void Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
     case sf::Event::MouseButtonPressed:
 
         if (this->isMouseOver(window, offset)) { /// !!! have to implement for the specific button callback
-            this->setBackColor(ColorManager::success);
+            if (!isColorBox) this->setBackColor(ColorManager::success);
             this->press();
         }
         break;
@@ -97,7 +99,7 @@ void Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
         this->release();
         if (this->isMouseOver(window)) {
             this->switchOnOff();
-            this->setBackColor(sf::Color::Blue);
+            if (!isColorBox) this->setBackColor(sf::Color::Blue);
         }
         break;
     }

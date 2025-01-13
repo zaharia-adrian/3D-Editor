@@ -26,8 +26,9 @@ class Menu {
 	float width, height, offsetLeft;
 	sf::RectangleShape menuBackground, viewBackground;
 	std::vector<bool> showTriangles, showVertices, showObjectProps;
-	std::vector<Button> objectsListItems, menuButtons;
+	std::vector<Button> objectsListItems, menuButtons, menuColors;
 	std::vector<InputBox> objectProprieties, vertexProprieties;
+	sf::Color paintColor;
 
 public:
 	Menu(sf::RenderWindow &, float, float, float);

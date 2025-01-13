@@ -10,7 +10,8 @@ Scene::Scene(float width, float height, float viewAngle, float znear, float zfar
 	zfar(zfar),
 	viewAngle(viewAngle),
 	editMode(false),
-	selectMode(false)
+	selectMode(false),
+	paintMode(false)
 {
 	a = width / height;
 };
@@ -54,7 +55,7 @@ void Scene::updateView() {
 			vertices.emplace_back(vertex.v * mat, vertex.objectIdx,vertex.vertexIdx,vertex.isSelected);
 
 		for (Object::triangle& t : objects[i].triangles) {
-
+			
 			Vec3d line1 = (vertices[t.idx[1] + count].v - vertices[t.idx[0] + count].v);
 			Vec3d line2 = (vertices[t.idx[2] + count].v - vertices[t.idx[0] + count].v);
 
@@ -110,7 +111,7 @@ void Scene::handleEvent(sf::RenderWindow &window,sf::Event event) {
 		camera.handleEvent(window, event);
 		break;
 	case sf::Event::MouseButtonPressed:
-		if (sf::Mouse::getPosition().x > 1470) break;
+		if (sf::Mouse::getPosition().x > 1470) break; /// should be more accurate
 		camera.handleEvent(window, event);
 		if (event.mouseButton.button == sf::Mouse::Left) {
 			if (editMode && this->handleClickedVertex(event))  break;
@@ -175,8 +176,16 @@ void Scene::handleClickedTriangle(sf::Event e) {
 			//objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
 			//sceneTriangle -> isSelected = !sceneTriangle->isSelected;
 			//triangles[t.triangleIdx].isSelected = !triangles[t.triangleIdx].isSelected;
-			if (!selectMode) objects[t.objectIdx].triangles[t.triangleIdx].isSelected = !objects[t.objectIdx].triangles[t.triangleIdx].isSelected;
-			else objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
+
+			/// should get rid of object's color and work with triangles only
+
+			if (!paintMode) {
+				if (!selectMode) objects[t.objectIdx].triangles[t.triangleIdx].isSelected = !objects[t.objectIdx].triangles[t.triangleIdx].isSelected;
+				else objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
+			}
+			else {
+				objects[t.objectIdx].triangles[t.triangleIdx].c = menuPaintColor;
+			}
 			break;
 		}
 	}

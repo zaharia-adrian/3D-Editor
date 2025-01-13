@@ -12,7 +12,7 @@
 class Button {
 public:
     Button();
-    Button(std::string, sf::Vector2f, sf::Vector2f, int, sf::Color, sf::Color, std::function<void()> = [&](){});
+    Button(std::string, sf::Vector2f, sf::Vector2f, int, sf::Color, sf::Color, std::function<void()> = [&](){}, bool = false);
 
     void setBackColor(sf::Color);
     void setTextColor(sf::Color);
@@ -36,6 +36,7 @@ private:
     sf::Color bgColor;
     bool pressed;
     bool switchedOn;
+    bool isColorBox;
 };  
 
 #endif
