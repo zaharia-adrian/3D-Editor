@@ -3,14 +3,13 @@
 
 Scene* Scene::instancePtr = nullptr;
 
-Scene::Scene(float width, float height, float viewAngle, float znear, float zfar) :
+Scene::Scene(float width, float height, float viewAngle, float znear, float zfar):
 	width(width),
 	height(height),
 	znear(znear),
 	zfar(zfar),
 	viewAngle(viewAngle),
-	editMode(false),
-	selectMode(false)
+	editMode(false)
 {
 	a = width / height;
 };
@@ -114,7 +113,7 @@ void Scene::handleEvent(sf::RenderWindow &window,sf::Event event) {
 		camera.handleEvent(window, event);
 		if (event.mouseButton.button == sf::Mouse::Left) {
 			if (editMode && this->handleClickedVertex(event))  break;
-			if (!editMode) this->handleClickedTriangle(event);
+			if(!editMode) this->handleClickedTriangle(event);
 		}
 		break;
 	case sf::Event::MouseButtonReleased:
@@ -175,12 +174,27 @@ void Scene::handleClickedTriangle(sf::Event e) {
 			//objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
 			//sceneTriangle -> isSelected = !sceneTriangle->isSelected;
 			//triangles[t.triangleIdx].isSelected = !triangles[t.triangleIdx].isSelected;
-			if (!selectMode) objects[t.objectIdx].triangles[t.triangleIdx].isSelected = !objects[t.objectIdx].triangles[t.triangleIdx].isSelected;
-			else objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
+			objects[t.objectIdx].triangles[t.triangleIdx].isSelected = !objects[t.objectIdx].triangles[t.triangleIdx].isSelected;
 			break;
 		}
 	}
 }
+	
+
+/*
+sf::Color operator - (sf::Color c1, sf::Color c2) {
+	sf::Color c3(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a);
+	return c3;
+}
+*/
+
+/*
+void operator -= (sf::Color& c1, sf::Color c2) {
+	sf::Color c3(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b);
+	c1 = c3;
+	return;
+}
+*/
 
 void Scene::drawTo(sf::RenderWindow& window) {
 	
@@ -285,8 +299,7 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			triangle.setPoint(0, { vertices[t.idx[0]].v.x, vertices[t.idx[0]].v.y });
 			triangle.setPoint(1, { vertices[t.idx[1]].v.x, vertices[t.idx[1]].v.y });
 			triangle.setPoint(2, { vertices[t.idx[2]].v.x, vertices[t.idx[2]].v.y });
-			if (!selectMode) triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
-			else triangle.setFillColor(objects[t.objectIdx].color);
+			triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
 			window.draw(triangle);
 
 			///sf::Color clr = objects[t.objectIdx].triangles[t.triangleIdx].c;
@@ -300,8 +313,8 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			//if (internalClock.getElapsedTime().asSeconds() < 2)
 			//std::cout << t.triangleIdx << '\n';
 
-			if (selectMode) { // object select mode
-				if (objects[t.objectIdx].isSelected) {
+			if (false) { // object select mode
+				if (objects[t.objectIdx].isSelected) {	
 
 					drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v);
 					drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v);
@@ -325,11 +338,11 @@ void Scene::drawTo(sf::RenderWindow& window) {
 
 					// function that changes the triangle color's alpha
 					float elapsed = internalClock.getElapsedTime().asSeconds();
-					float alpha = 128 + 127 * std::sin(elapsed * 7.5f); // 1 to 255
+					float alpha = 128 + 127 * std::sin(elapsed * 5.0f); // 1 to 255
 
 					objects[t.objectIdx].triangles[t.triangleIdx].c.a = alpha;
 					triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
-				}
+				}						
 				else {
 					objects[t.objectIdx].triangles[t.triangleIdx].c.a = 255;
 				}

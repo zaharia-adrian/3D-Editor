@@ -23,7 +23,7 @@ public:
 		return instancePtr;
 	}
 
-	bool homePageView;
+	bool homePageView, changedView;
 
 	void update();
 	void handleEvent(sf::RenderWindow&, sf::Event);

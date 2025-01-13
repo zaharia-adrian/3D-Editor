@@ -35,8 +35,7 @@ void InputBox::setValue(float _value) {
 }
 
 
-void InputBox::handleEvent(sf::RenderWindow& window, sf::Event event) {
-
+bool InputBox::handleEvent(sf::RenderWindow& window, sf::Event event) {
 	switch (event.type) {
 	case sf::Event::MouseButtonPressed:
 		if (event.mouseButton.button == sf::Mouse::Middle) {
@@ -54,13 +53,16 @@ void InputBox::handleEvent(sf::RenderWindow& window, sf::Event event) {
 		}
 		break;
 	case sf::Event::MouseWheelScrolled:
+		
 		if (isMouseOver(window)) {
 			setValue(value + event.mouseWheelScroll.delta * 0.1f);	
 			handleValueChange(event.mouseWheelScroll.delta * 0.1f);
+			return true;
 		}
 		break;
 	case sf::Event::MouseMoved: {
 		if (isMouseOver(window)) {
+	
 			text.setFillColor(ColorManager::dark);
 		}
 		else {
@@ -75,11 +77,12 @@ void InputBox::handleEvent(sf::RenderWindow& window, sf::Event event) {
 		handleValueChange(delta.x * 0.01f);
 
 		sf::Mouse::setPosition(lastMousePos, window);
-		break;
+		return true;
 	}
 	default:
 		break;
 	}
+	return false;
 }
 
 bool InputBox::isMouseOver(sf::RenderWindow& window) {

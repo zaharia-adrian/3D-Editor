@@ -4,6 +4,7 @@
 Home *Home::instancePtr = nullptr;
 Home::Home(sf::RenderWindow &window) {
 	homePageView = true;
+	changedView = true;
 	scene = Scene::getInstance();
 	homeButtons = {
 		Button("New project", {150,40},{335,200},21, ColorManager::primary, ColorManager::light, [&]() {
@@ -11,6 +12,7 @@ Home::Home(sf::RenderWindow &window) {
 			if (Modal::getNameDialog(window, "Enter new project name:", fileName)) {
 				scene->init("../../../localProjects/" + fileName + ".obj", true);
 				homePageView = false;
+				changedView = true;
 
 			}
 		}),
@@ -20,6 +22,7 @@ Home::Home(sf::RenderWindow &window) {
 				if (FileManager::loadSceneFromFile(filePath)) {
 					scene->updateView();
 					homePageView = false;
+					changedView = true;
 				}
 			}
 		}),
@@ -35,6 +38,7 @@ void Home::update() {
 		filesListItems.emplace_back(fileName.substr(0, fileName.size() - 4), size, pos, 30, ColorManager::light, ColorManager::primary, [fileName, this]() {
 			scene->init("../../../localProjects/" + fileName);
 			homePageView = false;
+			changedView = true;
 		});
 	}
 }

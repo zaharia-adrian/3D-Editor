@@ -72,7 +72,7 @@ bool Button::isPressed() {
     return false;
 }
 
-void Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f offset) { /// offset for buttons on renderTexture
+bool Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f offset) { /// offset for buttons on renderTexture
     switch (event.type) {
     case sf::Event::MouseMoved:
         if (this->isMouseOver(window, offset)) {
@@ -90,6 +90,7 @@ void Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
         if (this->isMouseOver(window, offset)) { /// !!! have to implement for the specific button callback
             this->setBackColor(ColorManager::success);
             this->press();
+            return true;
         }
         break;
 
@@ -101,6 +102,7 @@ void Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
         }
         break;
     }
+    return false;
 }
 
 bool Button::isSwitchedOn() {

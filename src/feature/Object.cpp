@@ -2,7 +2,8 @@
 
 
 Object::Object():
-	scl(1.0f,1.0f,1.0f)
+	scl(1.0f,1.0f,1.0f),
+	showObjectProprieties(false)
 {
 	name = "";
 	isSelected = false;

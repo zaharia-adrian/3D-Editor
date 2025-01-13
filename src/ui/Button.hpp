@@ -22,7 +22,7 @@ public:
     void press();
     void release();
     void switchOnOff();
-    void handleEvent(sf::RenderWindow&, sf::Event, sf::Vector2f = sf::Vector2f());
+    bool handleEvent(sf::RenderWindow&, sf::Event, sf::Vector2f = sf::Vector2f());
 
     bool isPressed();
     bool isSwitchedOn();

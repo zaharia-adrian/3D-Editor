@@ -44,6 +44,7 @@ public:
 	std::string name;
 	sf::Color color;
 	bool isSelected;
+	bool showObjectProprieties;
 
 	bool idxInBounds(int idx) const;
 	

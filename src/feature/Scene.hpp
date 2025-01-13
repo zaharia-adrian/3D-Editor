@@ -16,7 +16,7 @@ class Scene {
 
 	sf::Clock internalClock;
 
-	Scene(float = 1520, float = 1080, float = acos(-1) * 0.33f, float = 1.0f, float = 1000.f);
+	Scene(float = 1520, float = 1080, float = acos(-1) * 0.5f, float = 1.0f, float = 1000.f);
 public:
 	
 	bool editMode, selectMode;

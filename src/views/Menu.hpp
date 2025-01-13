@@ -21,7 +21,7 @@ class Menu {
 	const float boxHeight = 35;
 	const float boxMargin = 7;
 	float viewOffset = 0;
-	float objectsListHeight = 4000;
+	float objectsListHeight;
 	float posX, posY;
 	float width, height, offsetLeft;
 	sf::RectangleShape menuBackground, viewBackground;
@@ -29,7 +29,9 @@ class Menu {
 	std::vector<Button> objectsListItems, menuButtons;
 	std::vector<InputBox> objectProprieties, vertexProprieties;
 
+
 public:
+
 	Menu(sf::RenderWindow &, float, float, float);
 	void translate(Vec3d&);
 	void rotate(Vec3d&);

@@ -26,7 +26,7 @@ public:
 	bool isMouseOver(sf::RenderWindow&);
 	void setValue(float);
 
-	void handleEvent(sf::RenderWindow&, sf::Event);
+	bool handleEvent(sf::RenderWindow&, sf::Event);
 	void drawTo(sf::RenderWindow&);
 };
 
