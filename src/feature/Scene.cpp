@@ -3,13 +3,16 @@
 
 Scene* Scene::instancePtr = nullptr;
 
-Scene::Scene(float width, float height, float viewAngle, float znear, float zfar):
+Scene::Scene(float width, float height, float viewAngle, float znear, float zfar) :
 	width(width),
 	height(height),
 	znear(znear),
 	zfar(zfar),
 	viewAngle(viewAngle),
-	editMode(false)
+	editMode(false),
+	selectMode(false),
+	paintMode(false),
+	changed(false)
 {
 	a = width / height;
 };
@@ -17,11 +20,13 @@ Scene::Scene(float width, float height, float viewAngle, float znear, float zfar
 void Scene::init(std::string _filePath, bool newFile) {
 	filePath = _filePath;
 	if (!newFile) FileManager::loadSceneFromFile(_filePath.c_str());
+	changed = true;
 	updateView();
 }
 void Scene::saveAndClose(sf::RenderWindow & window) {
 	filePath = "";
 	objects.clear();
+	changed = true;
 	camera = Camera();
 }
 
@@ -53,7 +58,7 @@ void Scene::updateView() {
 			vertices.emplace_back(vertex.v * mat, vertex.objectIdx,vertex.vertexIdx,vertex.isSelected);
 
 		for (Object::triangle& t : objects[i].triangles) {
-
+			
 			Vec3d line1 = (vertices[t.idx[1] + count].v - vertices[t.idx[0] + count].v);
 			Vec3d line2 = (vertices[t.idx[2] + count].v - vertices[t.idx[0] + count].v);
 
@@ -109,22 +114,23 @@ void Scene::handleEvent(sf::RenderWindow &window,sf::Event event) {
 		camera.handleEvent(window, event);
 		break;
 	case sf::Event::MouseButtonPressed:
-		if (sf::Mouse::getPosition().x > 1470) break;
+		if (sf::Mouse::getPosition().x > 1470) break; /// should be more accurate
 		camera.handleEvent(window, event);
 		if (event.mouseButton.button == sf::Mouse::Left) {
 			if (editMode && this->handleClickedVertex(event))  break;
-			if(!editMode) this->handleClickedTriangle(event);
+			if (!editMode) this->handleClickedTriangle(event);
+			changed = true;
 		}
 		break;
 	case sf::Event::MouseButtonReleased:
 		camera.handleEvent(window, event);
 		break;
 	case sf::Event::MouseMoved:
-		if (sf::Mouse::getPosition().x > 1470) break;
+		if (sf::Mouse::getPosition().x > 1470) break;/// has to be more accurate
 		camera.handleEvent(window, event);
 		break;
 	case sf::Event::MouseWheelScrolled:
-		if (sf::Mouse::getPosition().x > 1470) break;
+		if (sf::Mouse::getPosition().x > 1470) break; /// has to be more accurate
 		camera.handleEvent(window, event);
 		break;
 	}
@@ -161,6 +167,7 @@ bool Scene::handleClickedVertex(sf::Event e) {
 		float d = (v.v.x - mouseX) * (v.v.x - mouseX) + (v.v.y - mouseY) * (v.v.y - mouseY);
 		if (d <= radius * radius) {
 			objects[v.objectIdx].vertices[v.vertexIdx].isSelected = !objects[v.objectIdx].vertices[v.vertexIdx].isSelected;
+			changed = true;
 			return true;
 		}
 	}
@@ -174,27 +181,21 @@ void Scene::handleClickedTriangle(sf::Event e) {
 			//objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
 			//sceneTriangle -> isSelected = !sceneTriangle->isSelected;
 			//triangles[t.triangleIdx].isSelected = !triangles[t.triangleIdx].isSelected;
-			objects[t.objectIdx].triangles[t.triangleIdx].isSelected = !objects[t.objectIdx].triangles[t.triangleIdx].isSelected;
+
+			/// should get rid of object's color and work with triangles only
+
+			if (!paintMode) {
+				if (!selectMode) objects[t.objectIdx].triangles[t.triangleIdx].isSelected = !objects[t.objectIdx].triangles[t.triangleIdx].isSelected;
+				else objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
+			}
+			else {
+				objects[t.objectIdx].triangles[t.triangleIdx].c = menuPaintColor;
+			}
+			changed = true;
 			break;
 		}
 	}
 }
-	
-
-/*
-sf::Color operator - (sf::Color c1, sf::Color c2) {
-	sf::Color c3(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a);
-	return c3;
-}
-*/
-
-/*
-void operator -= (sf::Color& c1, sf::Color c2) {
-	sf::Color c3(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b);
-	c1 = c3;
-	return;
-}
-*/
 
 void Scene::drawTo(sf::RenderWindow& window) {
 	
@@ -299,7 +300,8 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			triangle.setPoint(0, { vertices[t.idx[0]].v.x, vertices[t.idx[0]].v.y });
 			triangle.setPoint(1, { vertices[t.idx[1]].v.x, vertices[t.idx[1]].v.y });
 			triangle.setPoint(2, { vertices[t.idx[2]].v.x, vertices[t.idx[2]].v.y });
-			triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
+			if (!selectMode) triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
+			else triangle.setFillColor(objects[t.objectIdx].color);
 			window.draw(triangle);
 
 			///sf::Color clr = objects[t.objectIdx].triangles[t.triangleIdx].c;
@@ -313,8 +315,8 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			//if (internalClock.getElapsedTime().asSeconds() < 2)
 			//std::cout << t.triangleIdx << '\n';
 
-			if (false) { // object select mode
-				if (objects[t.objectIdx].isSelected) {	
+			if (selectMode) { // object select mode
+				if (objects[t.objectIdx].isSelected) {
 
 					drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v);
 					drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v);
@@ -338,11 +340,11 @@ void Scene::drawTo(sf::RenderWindow& window) {
 
 					// function that changes the triangle color's alpha
 					float elapsed = internalClock.getElapsedTime().asSeconds();
-					float alpha = 128 + 127 * std::sin(elapsed * 5.0f); // 1 to 255
+					float alpha = 128 + 127 * std::sin(elapsed * 7.5f); // 1 to 255
 
 					objects[t.objectIdx].triangles[t.triangleIdx].c.a = alpha;
 					triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
-				}						
+				}
 				else {
 					objects[t.objectIdx].triangles[t.triangleIdx].c.a = 255;
 				}
