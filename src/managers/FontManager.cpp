@@ -3,7 +3,7 @@
 FontManager* FontManager::instancePtr = nullptr;
 
 FontManager::FontManager() {
-	this->loadFromFile("../../../assets/Roboto-Regular.ttf");
+	this->loadFromFile("../../../assets/fonts/Roboto-Regular.ttf");
 }
 
 FontManager* FontManager::getInstance() {

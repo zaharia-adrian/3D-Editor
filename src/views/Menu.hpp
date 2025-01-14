@@ -9,6 +9,7 @@
 #include "../../src/ui/Button.hpp"
 #include "../../src/ui/InputBox.hpp"
 #include "../../src/ui/Slider.hpp"
+#include "../../src/ui/CustomCursor.hpp"
 #include "../../src/views/Home.hpp"
 
 
@@ -33,6 +34,7 @@ class Menu {
 	sf::Color paintColor;
 	Slider redSlider, greenSlider, blueSlider;
 	sf::RectangleShape colorPreview;
+	CustomCursor bucketCursor;
 
 public:
 	

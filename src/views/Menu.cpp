@@ -10,7 +10,8 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
     redSlider(1520 + 30, 730, 230, sf::Color::Red, 255),
     greenSlider(1520 + 30, 780, 230, sf::Color::Green, 0),
     blueSlider(1520 + 30, 830, 230, sf::Color::Blue, 0),
-    colorPreview({100.f, 100.f})
+    colorPreview({100.f, 100.f}),
+    bucketCursor("../../../assets/images/paint-bucket.png") // credit: https://www.flaticon.com/authors/justicon
 {
     scene = Scene::getInstance();
     home = Home::getInstance(window);
@@ -400,6 +401,9 @@ void Menu::drawTo(sf::RenderWindow& window) {
         greenSlider.drawTo(window);
         blueSlider.drawTo(window);
         window.draw(colorPreview);
+
+        bucketCursor.update(window);
+        bucketCursor.drawTo(window);
     }
 }
 
