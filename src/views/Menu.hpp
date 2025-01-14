@@ -8,6 +8,7 @@
 #include "../../src/managers/ColorManager.hpp"
 #include "../../src/ui/Button.hpp"
 #include "../../src/ui/InputBox.hpp"
+#include "../../src/ui/Slider.hpp"
 #include "../../src/views/Home.hpp"
 
 
@@ -30,6 +31,8 @@ class Menu {
 	std::vector<Button> objectsListItems, menuButtons, menuColors;
 	std::vector<InputBox> objectProprieties, vertexProprieties;
 	sf::Color paintColor;
+	Slider redSlider, greenSlider, blueSlider;
+	sf::RectangleShape colorPreview;
 
 public:
 	

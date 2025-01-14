@@ -9,8 +9,6 @@
 #include "../src/views/Home.hpp"
 #include "../src/managers/ColorManager.hpp"
 
-
-
 const float HEIGHT = 1080; ///window height
 const float WIDTH = 1920; ///window width
 const float SCENE_WIDTH = 1520;
@@ -80,7 +78,15 @@ int main()
                 menu.handleEvent(window, event);
             }
         }
-
+        /*
+        // Update the color preview
+        sf::Color currentColor(
+            static_cast<sf::Uint8>(redSlider.getValue()),
+            static_cast<sf::Uint8>(greenSlider.getValue()),
+            static_cast<sf::Uint8>(blueSlider.getValue())
+        );
+        colorPreview.setFillColor(currentColor);
+        */
         /// Update bucket position
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
         cursorSprite.setPosition(static_cast<float>(mousePosition.x), static_cast<float>(mousePosition.y));
@@ -93,6 +99,12 @@ int main()
             scene->drawTo(window);
             menu.drawTo(window);
         }
+
+        // Draw the sliders
+        //redSlider.draw(window);
+        //greenSlider.draw(window);
+        //blueSlider.draw(window);
+        //window.draw(colorPreview);
 
         /// Draw the bucket
         if (scene->paintMode) {

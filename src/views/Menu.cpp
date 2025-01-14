@@ -6,7 +6,11 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
     offsetLeft(offsetLeft),
     posX(offsetLeft + (width - viewWidth) / 2.0f),
     posY((width - viewWidth) / 2.0f + 30),
-    paintColor(sf::Color::White)
+    paintColor(sf::Color::White),
+    redSlider(1520 + 30, 730, 230, sf::Color::Red, 255),
+    greenSlider(1520 + 30, 780, 230, sf::Color::Green, 0),
+    blueSlider(1520 + 30, 830, 230, sf::Color::Blue, 0),
+    colorPreview({100.f, 100.f})
 {
     scene = Scene::getInstance();
     home = Home::getInstance(window);
@@ -16,7 +20,7 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
     menuBackground.setPosition({ offsetLeft, 0.0f });
     menuBackground.setFillColor(ColorManager::secondary);
 
-    ///view backgound
+    ///view background
     viewBackground = sf::RectangleShape({ viewWidth, viewHeight });
     viewBackground.setPosition({ posX, posY });
     viewBackground.setFillColor(ColorManager::primary);
@@ -134,6 +138,8 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
             paintColor = sf::Color::Black;
         }, true)
     };
+
+    colorPreview.setPosition(1520 + 30, 960);
     
     updateMenu(window);
 };
@@ -179,13 +185,18 @@ void Menu::handleEvent(sf::RenderWindow& window, sf::Event event) {
 
     for (Button& b : menuButtons) b.handleEvent(window, event);
 
-    if(scene->editMode)
-        for (InputBox& i : vertexProprieties) if(i.handleEvent(window, event)) hasToUpdateMenu = true;
+    if (scene->editMode)
+        for (InputBox& i : vertexProprieties) { if (i.handleEvent(window, event)) hasToUpdateMenu = true; }
     else
         for (InputBox& i : objectProprieties) if (i.handleEvent(window, event)) hasToUpdateMenu = true;
 
-    if (scene->paintMode)
+    if (scene->paintMode) {
+        redSlider.handleEvent(window, event, paintColor);
+        greenSlider.handleEvent(window, event, paintColor);
+        blueSlider.handleEvent(window, event, paintColor);
+
         for (Button& b : menuColors) b.handleEvent(window, event);
+    }
 
     switch (event.type) {
     case sf::Event::MouseWheelScrolled:
@@ -314,7 +325,6 @@ void Menu::drawTo(sf::RenderWindow& window) {
     renderTexture.create(viewWidth, viewHeight);
     renderTexture.clear(sf::Color::Transparent);
 
-
     sf::View scrollView(sf::FloatRect(0, viewOffset, viewWidth, viewHeight));
 
     renderTexture.setView(scrollView);
@@ -351,6 +361,14 @@ void Menu::drawTo(sf::RenderWindow& window) {
         txt.setString("Color Palette");
         txt.setPosition({ 1520 + 30, 480 });
         window.draw(txt);
+
+        txt.setString("RGB Sliders");
+        txt.setPosition({ 1520 + 30, 700 });
+        window.draw(txt);
+
+        txt.setString("Color Preview");
+        txt.setPosition({ 1520 + 30, 935 });
+        window.draw(txt);
     }
 
     if (!scene->editMode && !scene->paintMode) {
@@ -371,6 +389,17 @@ void Menu::drawTo(sf::RenderWindow& window) {
     }
     else {
         for (Button& b : menuColors) b.drawTo(window);
+
+        redSlider.updateColor(paintColor.r);
+        greenSlider.updateColor(paintColor.g);
+        blueSlider.updateColor(paintColor.b);
+
+        colorPreview.setFillColor(paintColor);
+
+        redSlider.drawTo(window);
+        greenSlider.drawTo(window);
+        blueSlider.drawTo(window);
+        window.draw(colorPreview);
     }
 }
 
