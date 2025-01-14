@@ -58,12 +58,57 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
             if (scene->paintMode) window.setMouseCursorVisible(false);
             else window.setMouseCursorVisible(true);
         }),
+        Button("Paint", { 150, 40 }, { 1345, 900 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
+            if (!scene->selectMode) {
+                for (Object& o : scene->objects)
+                    for (Object::triangle& t : o.triangles)
+                        if (t.isSelected)
+                            t.c = paintColor;
+            } else {
+                for (Object& o : scene->objects)
+                    if (o.isSelected)
+                        for (Object::triangle& t : o.triangles)
+                            t.c = paintColor;
+            }
+        }),
+        Button("Select all", { 150, 40 }, { 1345, 950 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
+            if (scene->editMode) {
+                for (Object& o : scene->objects)
+                    for (Object::vertex& v : o.vertices)
+                        v.isSelected = true;
+            } else {
+                if (!scene->selectMode) {
+                    for (Object& o : scene->objects)
+                        for (Object::triangle& t : o.triangles)
+                            t.isSelected = true;
+                } else {
+                    for (Object& o : scene->objects)
+                        o.isSelected = true;
+                }
+            }
+        }),
+        Button("Deselect all", { 150, 40 }, { 1345, 1000 }, 20, ColorManager::secondary, ColorManager::light, [&]() {
+            if (scene->editMode) {
+                for (Object& o : scene->objects)
+                    for (Object::vertex& v : o.vertices)
+                        v.isSelected = false;
+            } else {
+                if (!scene->selectMode) {
+                    for (Object& o : scene->objects)
+                        for (Object::triangle& t : o.triangles)
+                            t.isSelected = false;
+                } else {
+                    for (Object& o : scene->objects)
+                        o.isSelected = false;
+                }
+            }
+        }),
         Button("Add object", { 120, 30 }, { 1775, 15 }, 18, ColorManager::primary, ColorManager::light, [&]() {
             if (Modal::addNewObjectDialog(window,"Add new object:")) {
                 updateMenu(window);
             }
         }),
-        Button("Add vertex", { 120, 30 }, { 1645, 15 }, 18, ColorManager::primary, ColorManager::light, [&]() {
+        Button("Add vertex", { 90, 30 }, { 1675, 15 }, 18, ColorManager::primary, ColorManager::light, [&]() {
             /// verify that exactly 3 vertices are selected
             std::vector<Object::vertex> vertices;
             for (Object& o : scene->objects)
@@ -79,11 +124,41 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
                     float x = (vertices[0].v.x + vertices[1].v.x + vertices[2].v.x) / 3.0;
                     float y = (vertices[0].v.y + vertices[1].v.y + vertices[2].v.y) / 3.0;
                     float z = (vertices[0].v.z + vertices[1].v.z + vertices[2].v.z) / 3.0;
-                    //std::cerr<< vertices[0].v.x << ' ' << vertices[1].v.x << ' ' << vertices[2].v.x << ' '<< x << ' ' << y << ' ' << z << ' ' << std::endl;
                     scene->objects[objectIndex].addVertex(x, y, z, objectIndex, scene->objects[objectIndex].vertices.size());
-                } else {
-                    /// error modal
                 }
+                else {
+                    Modal::errorMessageDialog(window, "The vertices you selected belong to different objects!");
+                }
+            }
+            else {
+                Modal::errorMessageDialog(window, "Please select exactly 3 vertices!");
+            }
+        }),
+        Button("Add triangle", { 120, 30 }, { 1545, 15 }, 18, ColorManager::primary, ColorManager::light, [&]() {
+            /// verify that exactly 3 vertices are selected
+            std::vector<Object::vertex> vertices;
+            for (Object& o : scene->objects)
+                for (Object::vertex& v : o.vertices) {
+                    if (v.isSelected) {
+                        vertices.emplace_back(v);
+                        if (vertices.size() > 3) break;
+                    }
+                }
+            if (vertices.size() == 3) {
+                if (vertices[0].objectIdx == vertices[1].objectIdx && vertices[0].objectIdx == vertices[2].objectIdx) {
+                    int objectIndex = vertices[0].objectIdx;
+                    Vec3d line1 = vertices[1].v - vertices[0].v;
+                    Vec3d line2 = vertices[2].v - vertices[0].v;
+                    Vec3d normal = line1.crossProd(line2).normalize();
+                    if (normal.dotProd(vertices[0].v) >= 0) std::swap(vertices[1], vertices[2]);
+                    scene->objects[objectIndex].addTriangle(vertices[0].vertexIdx, vertices[1].vertexIdx, vertices[2].vertexIdx, objectIndex, scene->objects[objectIndex].triangles.size(), sf::Color::Green);
+                }
+                else {
+                    Modal::errorMessageDialog(window, "The vertices you selected belong to different objects!");
+                }
+            }
+            else {
+                Modal::errorMessageDialog(window, "Please select exactly 3 vertices!");
             }
         })
         /// additional menu buttons would be added here

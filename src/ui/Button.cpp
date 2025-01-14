@@ -79,7 +79,7 @@ bool Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
     case sf::Event::MouseMoved:
         if (this->isMouseOver(window, offset)) {
             if (!this->isPressed()) {
-                if (!isColorBox) this->setBackColor(sf::Color::Blue);
+                if (!isColorBox) this->setBackColor(ColorManager::tertiary);
             }
         }
         else {
@@ -89,7 +89,7 @@ bool Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
 
     case sf::Event::MouseButtonPressed:
 
-        if (this->isMouseOver(window, offset)) { /// !!! have to implement for the specific button callback
+        if (this->isMouseOver(window, offset)) {
             if (!isColorBox) this->setBackColor(ColorManager::success);
             this->press();
             return true;
@@ -100,7 +100,7 @@ bool Button::handleEvent(sf::RenderWindow& window, sf::Event event, sf::Vector2f
         this->release();
         if (this->isMouseOver(window)) {
             this->switchOnOff();
-            if (!isColorBox) this->setBackColor(sf::Color::Blue);
+            if (!isColorBox) this->setBackColor(ColorManager::tertiary);
         }
         break;
     }

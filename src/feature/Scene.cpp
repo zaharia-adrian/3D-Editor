@@ -178,18 +178,13 @@ void Scene::handleClickedTriangle(sf::Event e) {
 	for (auto& sceneTriangle = viewTriangles.rbegin(); sceneTriangle != viewTriangles.rend(); sceneTriangle++) {
 		Object::triangle t = *sceneTriangle;
 		if (triangleClicked(t, e)) {
-			//objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
-			//sceneTriangle -> isSelected = !sceneTriangle->isSelected;
-			//triangles[t.triangleIdx].isSelected = !triangles[t.triangleIdx].isSelected;
-
-			/// should get rid of object's color and work with triangles only
-
 			if (!paintMode) {
 				if (!selectMode) objects[t.objectIdx].triangles[t.triangleIdx].isSelected = !objects[t.objectIdx].triangles[t.triangleIdx].isSelected;
 				else objects[t.objectIdx].isSelected = !objects[t.objectIdx].isSelected;
 			}
 			else {
-				objects[t.objectIdx].triangles[t.triangleIdx].c = menuPaintColor;
+				if (!selectMode) objects[t.objectIdx].triangles[t.triangleIdx].c = menuPaintColor;
+				else for (Object::triangle& tt : objects[t.objectIdx].triangles) tt.c = menuPaintColor;
 			}
 			changed = true;
 			break;
@@ -275,22 +270,9 @@ void Scene::drawTo(sf::RenderWindow& window) {
 		circle.setFillColor(sf::Color(200, 200, 200, 100));
 
 		for (Object::triangle& t : triangles) {
-
 			drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v);
 			drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v);
-			drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v);	
-
-			/*
-			for (int i = 0;i < 3;i++) {
-				circle.setPosition({vertices[t.idx[i]].v.x,vertices[t.idx[i]].v.y });
-
-				if(objects[vertices[t.idx[i]].objectIdx].vertices[vertices[t.idx[i]].vertexIdx].isSelected)
-					circle.setFillColor(sf::Color::Yellow);
-				else
-					circle.setFillColor(sf::Color(200, 200, 200, 100));
-				window.draw(circle);
-			}
-			*/
+			drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v);
 		}
 
 		for (Object::vertex& vertex : vertices) {
@@ -312,57 +294,25 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			triangle.setPoint(0, { vertices[t.idx[0]].v.x, vertices[t.idx[0]].v.y });
 			triangle.setPoint(1, { vertices[t.idx[1]].v.x, vertices[t.idx[1]].v.y });
 			triangle.setPoint(2, { vertices[t.idx[2]].v.x, vertices[t.idx[2]].v.y });
-			if (!selectMode) triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
-			else triangle.setFillColor(objects[t.objectIdx].color);
+			triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
 			window.draw(triangle);
 
-			///sf::Color clr = objects[t.objectIdx].triangles[t.triangleIdx].c;
-			///std::cout << (float) clr.r << ' ' << (float) clr.g << ' ' << (float) clr.b << ' ' << (float) clr.a << '\n';
+			drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(40, 40, 40, 0));
+			drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(40, 40, 40, 0));
+			drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(40, 40, 40, 0));
 
-			/// hardcoded for green darker outline
-			drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
-			drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
-			drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
+			if (selectMode && objects[t.objectIdx].isSelected || !selectMode && objects[t.objectIdx].triangles[t.triangleIdx].isSelected) {
+				// function that changes the triangle color's alpha
+				float elapsed = internalClock.getElapsedTime().asSeconds();
+				float alpha = 128 + 127 * std::sin(elapsed * 7.5f); // 1 to 255
 
-			//if (internalClock.getElapsedTime().asSeconds() < 2)
-			//std::cout << t.triangleIdx << '\n';
+				objects[t.objectIdx].triangles[t.triangleIdx].c.a = alpha;
+				triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
+			}
 
-			if (selectMode) { // object select mode
-				if (objects[t.objectIdx].isSelected) {
-
-					drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v);
-					drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v);
-					drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v);
-
-					// function that changes the triangle color's alpha
-					float elapsed = internalClock.getElapsedTime().asSeconds();
-					float alpha = 128 + 127 * std::sin(elapsed * 7.5f); // 1 to 255
-
-					objects[t.objectIdx].color.a = alpha;
-					triangle.setFillColor(objects[t.objectIdx].color);
-				}
-				else {
-					objects[t.objectIdx].color.a = 255;
-				}
-			} else { // triangle select mode
-				if (objects[t.objectIdx].triangles[t.triangleIdx].isSelected) {
-					drawLine(vertices[t.idx[0]].v, vertices[t.idx[1]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
-					drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0));
-					drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(0, 40, 0, 0)/*, objects[t.objectIdx].triangles[t.triangleIdx].c - sf::Color(10, 10, 10)*/);
-
-					// function that changes the triangle color's alpha
-					float elapsed = internalClock.getElapsedTime().asSeconds();
-					float alpha = 128 + 127 * std::sin(elapsed * 7.5f); // 1 to 255
-
-					objects[t.objectIdx].triangles[t.triangleIdx].c.a = alpha;
-					triangle.setFillColor(objects[t.objectIdx].triangles[t.triangleIdx].c);
-				}
-				else {
-					objects[t.objectIdx].triangles[t.triangleIdx].c.a = 255;
-				}
+			if (selectMode && !objects[t.objectIdx].isSelected || !selectMode && !objects[t.objectIdx].triangles[t.triangleIdx].isSelected) {
+				objects[t.objectIdx].triangles[t.triangleIdx].c.a = 255;
 			}
 		}
 	}
 }
-
-
