@@ -218,3 +218,51 @@ bool Modal::addNewObjectDialog(sf::RenderWindow &window, std::string _title) {
 }
 
 
+void Modal::errorMessageDialog(sf::RenderWindow& window, std::string _title) {
+	bool open = true;
+
+	Button cancelBtn("Cancel", { 100,40 }, { 1230,730 }, 21, ColorManager::primary, ColorManager::light, [&]() { open = false;});
+
+	sf::RectangleShape modal({ 800,500 });
+	modal.setFillColor(ColorManager::tertiary);
+	modal.setPosition({ 560,290 });
+
+
+	sf::Text title;
+	title.setString(_title);
+	title.setFont(*FontManager::getInstance());
+	title.setCharacterSize(24);
+	title.setPosition({ 600,400 });
+	title.setColor(ColorManager::danger);
+
+	while (open) {
+
+		sf::Event event;
+		while (window.pollEvent(event)) {
+			switch (event.type) {
+			case sf::Event::Closed:
+				window.close();
+			case sf::Event::KeyPressed:
+				if (event.key.code == sf::Keyboard::Enter) open = false;
+				break;
+			case sf::Event::Resized: {
+				float width = static_cast<float>(window.getSize().x);
+				float height = static_cast<float>(window.getSize().y);
+				window.setView(sf::View(sf::FloatRect(0, 0, width, height)));
+				break;
+			}
+			}
+			cancelBtn.handleEvent(window, event);
+		}
+
+		window.clear(ColorManager::dark);
+
+		window.draw(modal);
+		window.draw(title);
+
+		cancelBtn.drawTo(window);
+
+		window.display();
+	}
+}
+
