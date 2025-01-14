@@ -82,11 +82,10 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
                     //std::cerr<< vertices[0].v.x << ' ' << vertices[1].v.x << ' ' << vertices[2].v.x << ' '<< x << ' ' << y << ' ' << z << ' ' << std::endl;
                     scene->objects[objectIndex].addVertex(x, y, z, objectIndex, scene->objects[objectIndex].vertices.size());
                 } else {
-                    /// error modal
-                    Modal::errorMessageDialog(window, "Selected vertices should belong to the same object!");
+                    Modal::errorMessageDialog(window, "The vertices you selected belong to different objects!");
                 }
-            }else {
-                Modal::errorMessageDialog(window, "Exactly 3 vertices from the same object should be selected!");
+            } else {
+                Modal::errorMessageDialog(window, "Please select exactly 3 vertices!");
             }
         })
         /// additional menu buttons would be added here
@@ -286,20 +285,13 @@ void Menu::updateMenu(sf::RenderWindow& window) {
 
 
         if (scene->objects[idx].showObjectProprieties) {
-            int count = 0;
-            sf::Vector2f sizeBtn1 = { 110, boxHeight - 10 };
-            sf::Vector2f sizeBtn2 = { 70, boxHeight - 10 };
-
-            auto getStr = [](float value) {
-                return (value < 0 ? "- " : "  ") + std::to_string(+abs((int)value)) + "." + std::to_string(abs(((int)(value * 100) % 100)));
-            };
-
             if (scene->editMode) {
+                int count = 0;
+                sf::Vector2f sizeBtn1 = { 90, boxHeight - 10 };
+                sf::Vector2f sizeBtn2 = { 70, boxHeight - 10 };
                 for (int v_idx = 0; v_idx < scene->objects[idx].vertices.size();v_idx++) {
                     sf::Vector2f posV = { pos.x + 8, pos.y + boxHeight + boxMargin + (boxHeight - 10 + boxMargin) * count };
-
                     if (posV.y > bottomLimit) break;
-
                     bool selected = scene->objects[idx].vertices[v_idx].isSelected;
                     if (posV.y > topLimit)
                         objectsListItems.emplace_back("vertex " + std::to_string(v_idx), sizeBtn1, posV, 18, (selected ? ColorManager::tertiary : ColorManager::light), ColorManager::dark, [idx, v_idx, &window, this]() {
@@ -307,6 +299,9 @@ void Menu::updateMenu(sf::RenderWindow& window) {
                         updateMenu(window);
                             });
                     count++;
+                    auto getStr = [](float value) {
+                        return (value < 0 ? "- " : "  ") + std::to_string(+abs((int)value)) + "." + std::to_string(abs(((int)(value * 100) % 100)));
+                        };
 
                     if (scene->objects[idx].vertices[v_idx].isSelected) {
                         sf::Vector2f pos1 = { pos.x + 15, pos.y + (boxHeight - 10 + boxMargin) * count + boxHeight + boxMargin };
@@ -321,43 +316,24 @@ void Menu::updateMenu(sf::RenderWindow& window) {
                         count++;
                     }
                 }
+                objectPropretiesTotalCount += count;
             }
             else {
+                int count = 0;
+                sf::Vector2f sizeBtn1 = { 110, boxHeight - 10 };
                 for (int t_idx = 0; t_idx < scene->objects[idx].triangles.size();t_idx++) {
                     sf::Vector2f posV = { pos.x + 8, pos.y + boxHeight + boxMargin + (boxHeight - 10 + boxMargin) * count };
                     if (posV.y > bottomLimit) break;
                     bool selected = scene->objects[idx].triangles[t_idx].isSelected;
-                    if (posV.y > topLimit) {
+                    if (posV.y > topLimit)
                         objectsListItems.emplace_back("triangle " + std::to_string(t_idx), sizeBtn1, posV, 18, (selected ? ColorManager::tertiary : ColorManager::light), ColorManager::dark, [idx, t_idx, &window, this]() {
-                            scene->objects[idx].triangles[t_idx].isSelected = !scene->objects[idx].triangles[t_idx].isSelected;
-                            updateMenu(window);
+                        scene->objects[idx].triangles[t_idx].isSelected = !scene->objects[idx].triangles[t_idx].isSelected;
+                        updateMenu(window);
                             });
-                        count++;
-                    }
-                    if(selected){  
-                        for (int i = 0; i < 3;i++) {
-                            int v_idx = scene->objects[idx].triangles[t_idx].idx[i];
-                            sf::Vector2f posV = { pos.x + 15, pos.y + boxHeight + boxMargin + (boxHeight - 10 + boxMargin) * count };
-
-                            objectsListItems.emplace_back("vertex " + std::to_string(v_idx), sizeBtn1, posV, 18, ColorManager::light, ColorManager::dark);
-                            count++;
-
-                            sf::Vector2f pos1 = { pos.x + 18, pos.y + (boxHeight - 10 + boxMargin) * count + boxHeight + boxMargin };
-                            sf::Vector2f pos2 = { pos.x + sizeBtn2.x + 21, pos.y + (boxHeight - 10 + boxMargin) * count + boxHeight + boxMargin };
-                            sf::Vector2f pos3 = { pos.x + 2 * sizeBtn2.x + 24, pos.y + (boxHeight - 10 + boxMargin) * count + boxHeight + boxMargin };
-
-                            count++;
-                            objectsListItems.emplace_back(getStr(scene->objects[idx].vertices[v_idx].v.x), sizeBtn2, pos1, 18, ColorManager::light, ColorManager::dark);
-                            objectsListItems.emplace_back(getStr(scene->objects[idx].vertices[v_idx].v.y), sizeBtn2, pos2, 18, ColorManager::light, ColorManager::dark);
-                            objectsListItems.emplace_back(getStr(scene->objects[idx].vertices[v_idx].v.z), sizeBtn2, pos3, 18, ColorManager::light, ColorManager::dark);
-                        }
-                            
-                    }
-                    
-
+                    count++;
                 }
+                objectPropretiesTotalCount += count;
             }
-            objectPropretiesTotalCount += count;
         }
 
     }
