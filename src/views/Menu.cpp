@@ -63,6 +63,29 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
                 updateMenu(window);
             }
         }),
+        Button("Add vertex", { 120, 30 }, { 1645, 15 }, 18, ColorManager::primary, ColorManager::light, [&]() {
+            /// verify that exactly 3 vertices are selected
+            std::vector<Object::vertex> vertices;
+            for (Object& o : scene->objects)
+                for (Object::vertex& v : o.vertices) {
+                    if (v.isSelected) {
+                        vertices.emplace_back(v);
+                        if (vertices.size() > 3) break;
+                    }
+                }
+            if (vertices.size() == 3) {
+                if (vertices[0].objectIdx == vertices[1].objectIdx && vertices[0].objectIdx == vertices[2].objectIdx) {
+                    int objectIndex = vertices[0].objectIdx;
+                    float x = (vertices[0].v.x + vertices[1].v.x + vertices[2].v.x) / 3.0;
+                    float y = (vertices[0].v.y + vertices[1].v.y + vertices[2].v.y) / 3.0;
+                    float z = (vertices[0].v.z + vertices[1].v.z + vertices[2].v.z) / 3.0;
+                    //std::cerr<< vertices[0].v.x << ' ' << vertices[1].v.x << ' ' << vertices[2].v.x << ' '<< x << ' ' << y << ' ' << z << ' ' << std::endl;
+                    scene->objects[objectIndex].addVertex(x, y, z, objectIndex, scene->objects[objectIndex].vertices.size());
+                } else {
+                    /// error modal
+                }
+            }
+        })
         /// additional menu buttons would be added here
     };
 

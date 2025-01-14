@@ -280,6 +280,7 @@ void Scene::drawTo(sf::RenderWindow& window) {
 			drawLine(vertices[t.idx[0]].v, vertices[t.idx[2]].v);
 			drawLine(vertices[t.idx[1]].v, vertices[t.idx[2]].v);	
 
+			/*
 			for (int i = 0;i < 3;i++) {
 				circle.setPosition({vertices[t.idx[i]].v.x,vertices[t.idx[i]].v.y });
 
@@ -289,6 +290,17 @@ void Scene::drawTo(sf::RenderWindow& window) {
 					circle.setFillColor(sf::Color(200, 200, 200, 100));
 				window.draw(circle);
 			}
+			*/
+		}
+
+		for (Object::vertex& vertex : vertices) {
+			circle.setPosition({ vertex.v.x, vertex.v.y });
+
+			if (vertex.isSelected)
+				circle.setFillColor(sf::Color::Yellow);
+			else
+				circle.setFillColor(sf::Color(200, 200, 200, 100));
+			window.draw(circle);
 		}
 	}
 	else {
