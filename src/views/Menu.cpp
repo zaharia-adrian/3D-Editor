@@ -82,8 +82,10 @@ Menu::Menu(sf::RenderWindow& window, float width, float height, float offsetLeft
                     //std::cerr<< vertices[0].v.x << ' ' << vertices[1].v.x << ' ' << vertices[2].v.x << ' '<< x << ' ' << y << ' ' << z << ' ' << std::endl;
                     scene->objects[objectIndex].addVertex(x, y, z, objectIndex, scene->objects[objectIndex].vertices.size());
                 } else {
-                    /// error modal
+                    Modal::errorMessageDialog(window, "The vertices you selected belong to different objects!");
                 }
+            } else {
+                Modal::errorMessageDialog(window, "Please select exactly 3 vertices!");
             }
         })
         /// additional menu buttons would be added here
